@@ -187,8 +187,8 @@ header{display:flex;align-items:center;justify-content:space-between;padding:14p
 <div class="app">
 <aside class="sidebar">
 <div class="sidebar-tabs">
-<button class="stab on" onclick="switchTab('my')" id="tab-my">🧺 My Ingredients</button>
-<button class="stab" onclick="switchTab('browse')" id="tab-browse">🗂 Browse All</button>
+<button class="stab on" onclick="switchTab('my')" ontouchend="event.preventDefault();switchTab('my')" id="tab-my">🧺 My Ingredients</button>
+<button class="stab" onclick="switchTab('browse')" ontouchend="event.preventDefault();switchTab('browse')" id="tab-browse">🗂 Browse All</button>
 </div>
 <div class="tab-panel on" id="panel-my" style="overflow-y:auto;">
 <div class="limit-banner" id="limitBanner" style="display:none">
@@ -199,7 +199,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:14p
 <div class="s-label">Your Ingredients<span class="s-label-count" id="ingCount" style="display:none">0</span></div>
 <div class="input-wrap">
 <input class="ing-in" id="ingIn" type="text" placeholder="Type any ingredient…" autocomplete="off" spellcheck="false"/>
-<button class="btn-add" onclick="addIng()">+</button>
+<button class="btn-add" onclick="addIng()" ontouchend="event.preventDefault();addIng()">+</button>
 </div>
 <div class="ing-limit-note" id="ingLimitNote" style="display:none"></div>
 </div>
