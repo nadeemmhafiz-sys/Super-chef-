@@ -2,536 +2,708 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+<meta name="theme-color" content="#0a0a0a"/>
 <title>SuperChef — AI Recipe Finder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Bebas+Neue&display=swap');
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#0a0a0a;--surface:#111111;--card:#161616;--card2:#1c1c1c;--border:#242424;--lime:#c8ff00;--lime-dim:rgba(200,255,0,0.12);--lime-glow:rgba(200,255,0,0.25);--lime-dark:#9dc400;--text:#f5f5f5;--muted:#606060;--muted2:#404040;--red:#ff3b3b;--amber:#ffbe00;--radius:14px;--radius-sm:10px;}
-html,body{height:100%;overflow:hidden}
-  *{-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
-body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;}
-header{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;background:var(--bg);border-bottom:1px solid var(--border);flex-shrink:0;z-index:10;}
-.logo{display:flex;align-items:center;gap:12px}
-.logo-mark{width:38px;height:38px;border-radius:11px;background:var(--lime);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
-.logo-mark::before{content:'';position:absolute;inset:3px;border-radius:50%;border:3px solid #0a0a0a;}
-.logo-mark::after{content:'✓';color:#0a0a0a;font-size:13px;font-weight:900;position:relative;z-index:1;}
-.logo-name{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:1px;line-height:1;}
-.logo-name span{color:var(--lime)}
-.logo-sub{font-size:0.6rem;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:2px}
-.header-right{display:flex;align-items:center;gap:10px}
-.ai-pill{display:flex;align-items:center;gap:7px;border:1px solid var(--border);border-radius:999px;padding:5px 13px;font-size:0.7rem;font-weight:600;color:var(--muted);letter-spacing:0.5px;text-transform:uppercase;}
-.ai-dot{width:7px;height:7px;border-radius:50%;background:var(--lime);box-shadow:0 0 8px var(--lime)}
-.btn-pro{background:linear-gradient(135deg,#c8ff00,#80ff80);border:none;border-radius:999px;padding:6px 14px;font-size:0.72rem;font-weight:700;color:#0a0a0a;cursor:pointer;letter-spacing:0.5px;font-family:'Space Grotesk',sans-serif;transition:all 0.15s;}
-.search-counter{font-size:0.7rem;font-weight:600;color:var(--muted);border:1px solid var(--border);border-radius:999px;padding:5px 12px;}
-.search-counter.warn{color:var(--amber);border-color:rgba(255,190,0,0.4);}
-.search-counter.empty{color:var(--red);border-color:rgba(255,59,59,0.4);}
-.app{display:grid;grid-template-columns:360px 1fr;flex:1;min-height:0;}
-.sidebar{background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
-.sidebar-tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;}
-.stab{flex:1;padding:12px 8px;text-align:center;font-size:0.72rem;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:var(--muted);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;transition:all 0.15s;font-family:'Space Grotesk',sans-serif;}
-.stab.on{color:var(--lime);border-bottom-color:var(--lime);}
-.tab-panel{display:none;flex-direction:column;flex:1;overflow:hidden;}
-.tab-panel.on{display:flex;}
-.s-block{padding:18px;border-bottom:1px solid var(--border);}
-.s-block:last-child{border-bottom:none;flex:1;}
-.s-label{font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;}
-.s-label-count{width:20px;height:20px;border-radius:50%;background:var(--lime);color:#0a0a0a;font-size:0.63rem;font-weight:700;display:flex;align-items:center;justify-content:center;}
-.input-wrap{display:flex;align-items:center;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;transition:border-color 0.2s;}
-.input-wrap:focus-within{border-color:var(--lime)}
-.ing-in{flex:1;background:none;border:none;padding:11px 13px;color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:0.86rem;outline:none;}
-.ing-in::placeholder{color:var(--muted2)}
-.btn-add{background:var(--lime);border:none;width:42px;height:42px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;font-size:1.3rem;color:#0a0a0a;font-weight:900;}
-.ing-limit-note{margin-top:8px;font-size:0.7rem;color:var(--muted);display:flex;align-items:center;gap:5px;}
-.ing-limit-note.warn{color:var(--amber)}
-.ing-limit-note.full{color:var(--red)}
-.chips{display:flex;flex-wrap:wrap;gap:6px;overflow-y:auto;max-height:120px;padding-bottom:2px;}
-.chip{display:flex;align-items:center;gap:5px;background:var(--lime-dim);border:1px solid rgba(200,255,0,0.25);border-radius:999px;padding:4px 7px 4px 11px;font-size:0.77rem;font-weight:500;color:var(--text);}
-.chip-rm{background:var(--muted2);border:none;width:17px;height:17px;border-radius:50%;color:#0a0a0a;font-size:0.65rem;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.btn-find{width:100%;background:var(--lime);border:none;border-radius:var(--radius-sm);padding:14px;color:#0a0a0a;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.92rem;cursor:pointer;letter-spacing:0.5px;display:flex;align-items:center;justify-content:center;gap:10px;transition:all 0.15s;text-transform:uppercase;}
-.btn-find:disabled{opacity:0.22;cursor:not-allowed;}
-.limit-banner{display:flex;align-items:center;justify-content:space-between;gap:10px;background:rgba(255,190,0,0.08);border:1px solid rgba(255,190,0,0.25);border-radius:10px;padding:10px 14px;font-size:0.75rem;color:var(--amber);margin:12px 16px 0;}
-.limit-banner button{background:var(--amber);border:none;border-radius:6px;padding:5px 12px;font-size:0.7rem;font-weight:700;color:#0a0a0a;cursor:pointer;font-family:'Space Grotesk',sans-serif;}
-.browser-panel{display:flex;flex-direction:column;flex:1;overflow:hidden;}
-.browser-search-wrap{padding:12px 16px;border-bottom:1px solid var(--border);flex-shrink:0;}
-.browser-search{display:flex;align-items:center;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;}
-.browser-search-icon{padding:0 12px;color:var(--muted);font-size:0.95rem;}
-.browser-search-in{flex:1;background:none;border:none;padding:10px 0;color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:0.84rem;outline:none;}
-.browser-search-in::placeholder{color:var(--muted2)}
-.browser-search-clear{background:none;border:none;cursor:pointer;color:var(--muted);padding:0 12px;font-size:1rem;display:none;}
-.browser-search-clear.vis{display:flex;align-items:center;}
-.browser-scroll{flex:1;overflow-y:auto;padding-bottom:20px;}
-.cat-block{border-bottom:1px solid var(--border);}
-.cat-header{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;transition:background 0.15s;user-select:none;}
-.cat-header:hover{background:var(--card)}
-.cat-emoji{font-size:1.4rem;flex-shrink:0;width:32px;text-align:center;}
-.cat-info{flex:1;min-width:0;}
-.cat-name{font-weight:700;font-size:0.88rem;}
-.cat-sub{font-size:0.68rem;color:var(--muted);margin-top:2px;}
-.cat-arrow{color:var(--muted);font-size:0.75rem;transition:transform 0.2s;flex-shrink:0;}
-.cat-block.open .cat-arrow{transform:rotate(180deg);}
-.cat-pills{padding:0 16px 14px;display:none;flex-wrap:wrap;gap:7px;}
-.cat-block.open .cat-pills{display:flex;}
-.ipill{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:0.75rem;font-weight:500;color:var(--muted);cursor:pointer;font-family:'Space Grotesk',sans-serif;transition:all 0.15s;user-select:none;}
-.ipill:hover:not(.added):not(.disabled-pill){background:var(--lime-dim);border-color:rgba(200,255,0,0.35);color:var(--lime);}
-.ipill.added{background:var(--lime-dim);border-color:rgba(200,255,0,0.4);color:var(--lime);cursor:default;}
-.ipill.added::before{content:'✓ ';font-weight:700;}
-.ipill.disabled-pill{opacity:0.3;cursor:not-allowed;}
-.search-results-label{padding:10px 16px 4px;font-size:0.6rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
-.search-no-results{padding:30px 16px;text-align:center;color:var(--muted);font-size:0.84rem;}
-.main{display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;background:var(--bg);}
-.empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:40px 24px;text-align:center;}
-.empty-icon{width:96px;height:96px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:2.6rem;position:relative;background:var(--surface);}
-.empty-icon::before{content:'';position:absolute;inset:-1px;border-radius:50%;border:2px solid transparent;border-top-color:var(--lime);animation:spin 3s linear infinite;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+:root{
+  --bg:#080808;--surface:#111;--card:#161616;--card2:#1c1c1c;--border:#222;
+  --lime:#c8ff00;--lime2:rgba(200,255,0,0.12);--lime3:rgba(200,255,0,0.06);
+  --text:#f0f0f0;--muted:#555;--muted2:#333;--red:#ff4444;--amber:#ffb800;
+  --r:16px;--rs:10px;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;overflow:hidden}
+button,input,a{font-family:inherit;outline:none;-webkit-appearance:none}
+button{cursor:pointer;border:none;background:none}
+
+/* HEADER */
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border);flex-shrink:0;position:relative;z-index:10;background:var(--bg)}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-icon{width:36px;height:36px;background:var(--lime);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.logo-text{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;letter-spacing:-0.5px}
+.logo-text span{color:var(--lime)}
+.logo-sub{font-size:0.55rem;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:1px}
+.hdr-right{display:flex;align-items:center;gap:8px}
+.ai-badge{display:flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:999px;padding:5px 12px;font-size:0.68rem;font-weight:600;color:var(--muted);letter-spacing:0.5px;text-transform:uppercase}
+.ai-dot{width:6px;height:6px;border-radius:50%;background:var(--lime);box-shadow:0 0 6px var(--lime);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+.counter{font-size:0.68rem;font-weight:600;color:var(--muted);border:1px solid var(--border);border-radius:999px;padding:5px 11px;display:none}
+.counter.warn{color:var(--amber);border-color:rgba(255,184,0,0.4)}
+.counter.out{color:var(--red);border-color:rgba(255,68,68,0.4)}
+.pro-btn{background:var(--lime);border-radius:999px;padding:6px 14px;font-size:0.7rem;font-weight:700;color:#000;letter-spacing:0.3px;display:none}
+
+/* LAYOUT */
+.layout{display:grid;grid-template-columns:340px 1fr;height:calc(100vh - 57px)}
+.sidebar{background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+
+/* TABS */
+.tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0}
+.tab{flex:1;padding:13px 8px;text-align:center;font-size:0.7rem;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--muted);border-bottom:2px solid transparent;transition:all 0.15s;background:none;border-left:none;border-right:none;border-top:none}
+.tab.on{color:var(--lime);border-bottom-color:var(--lime)}
+
+/* PANEL */
+.panel{display:none;flex-direction:column;flex:1;overflow:hidden}
+.panel.on{display:flex}
+
+/* INGREDIENTS PANEL */
+.ing-panel{display:flex;flex-direction:column;flex:1;overflow:hidden}
+.limit-bar{display:none;align-items:center;justify-content:space-between;gap:8px;background:rgba(255,184,0,0.07);border-bottom:1px solid rgba(255,184,0,0.2);padding:10px 16px;font-size:0.73rem;color:var(--amber);flex-shrink:0}
+.limit-bar.show{display:flex}
+.limit-bar-btn{background:var(--amber);border-radius:6px;padding:4px 10px;font-size:0.68rem;font-weight:700;color:#000}
+.sec{padding:16px;border-bottom:1px solid var(--border);flex-shrink:0}
+.sec-label{font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.sec-count{width:18px;height:18px;border-radius:50%;background:var(--lime);color:#000;font-size:0.6rem;font-weight:700;display:none;align-items:center;justify-content:center}
+.ing-row{display:flex;align-items:center;background:var(--card);border:1.5px solid var(--border);border-radius:var(--rs);overflow:hidden;transition:border-color 0.2s}
+.ing-row:focus-within{border-color:var(--lime)}
+.ing-input{flex:1;background:none;border:none;padding:12px 14px;color:var(--text);font-size:0.9rem;min-width:0}
+.ing-input::placeholder{color:var(--muted2)}
+.add-btn{background:var(--lime);width:46px;height:46px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:700;color:#000;flex-shrink:0;transition:background 0.15s}
+.add-btn:active{background:#aadd00}
+.ing-note{margin-top:8px;font-size:0.68rem;color:var(--muted);display:none}
+.ing-note.warn{color:var(--amber);display:flex}
+.ing-note.full{color:var(--red);display:flex}
+.chips-wrap{padding:0 16px 16px;overflow-y:auto;flex:1}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:flex;align-items:center;gap:4px;background:var(--lime2);border:1px solid rgba(200,255,0,0.2);border-radius:999px;padding:5px 8px 5px 12px;font-size:0.75rem;font-weight:500;color:var(--text);animation:pop 0.2s cubic-bezier(0.34,1.56,0.64,1)}
+@keyframes pop{from{transform:scale(0.5);opacity:0}to{transform:scale(1);opacity:1}}
+.chip-x{width:16px;height:16px;border-radius:50%;background:var(--muted2);color:#000;font-size:0.6rem;font-weight:900;display:flex;align-items:center;justify-content:center;transition:background 0.15s;flex-shrink:0;border:none}
+.chip-x:active{background:var(--red)}
+.find-sec{padding:16px;flex-shrink:0;margin-top:auto}
+.find-btn{width:100%;background:var(--lime);border-radius:var(--rs);padding:15px;color:#000;font-weight:700;font-size:0.9rem;letter-spacing:0.3px;text-transform:uppercase;transition:all 0.15s;display:flex;align-items:center;justify-content:center;gap:8px}
+.find-btn:disabled{opacity:0.2;pointer-events:none}
+.find-btn:active{background:#aadd00;transform:scale(0.99)}
+
+/* BROWSER PANEL */
+.browser-panel{display:flex;flex-direction:column;flex:1;overflow:hidden}
+.bsearch-wrap{padding:12px 14px;border-bottom:1px solid var(--border);flex-shrink:0}
+.bsearch{display:flex;align-items:center;background:var(--card);border:1.5px solid var(--border);border-radius:var(--rs);overflow:hidden;transition:border-color 0.2s}
+.bsearch:focus-within{border-color:var(--lime)}
+.bsearch-icon{padding:0 12px;color:var(--muted);font-size:0.9rem;flex-shrink:0}
+.bsearch-input{flex:1;background:none;border:none;padding:10px 0;color:var(--text);font-size:0.85rem;min-width:0}
+.bsearch-input::placeholder{color:var(--muted2)}
+.bsearch-clear{background:none;border:none;padding:0 12px;color:var(--muted);font-size:1rem;display:none;align-items:center}
+.bsearch-clear.show{display:flex}
+.blist{flex:1;overflow-y:auto;padding-bottom:20px}
+.bcat{border-bottom:1px solid var(--border)}
+.bcat-hdr{display:flex;align-items:center;gap:10px;padding:13px 14px;cursor:pointer;transition:background 0.15s;user-select:none}
+.bcat-hdr:active{background:var(--card)}
+.bcat-emoji{font-size:1.3rem;width:30px;text-align:center;flex-shrink:0}
+.bcat-info{flex:1;min-width:0}
+.bcat-name{font-weight:600;font-size:0.85rem}
+.bcat-sub{font-size:0.65rem;color:var(--muted);margin-top:1px}
+.bcat-arrow{color:var(--muted);font-size:0.7rem;transition:transform 0.2s;flex-shrink:0}
+.bcat.open .bcat-arrow{transform:rotate(180deg)}
+.bcat-pills{padding:0 14px 12px;display:none;flex-wrap:wrap;gap:6px}
+.bcat.open .bcat-pills{display:flex}
+.pill{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:6px 11px;font-size:0.73rem;font-weight:500;color:var(--muted);cursor:pointer;transition:all 0.15s;-webkit-user-select:none;user-select:none}
+.pill:active:not(.pill-on){background:var(--lime2);color:var(--lime)}
+.pill.pill-on{background:var(--lime2);border-color:rgba(200,255,0,0.35);color:var(--lime)}
+.pill.pill-on::before{content:'✓ '}
+.pill.pill-off{opacity:0.3;pointer-events:none}
+.no-results{padding:30px 16px;text-align:center;color:var(--muted);font-size:0.84rem}
+.results-label{padding:10px 14px 4px;font-size:0.58rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+
+/* MAIN */
+.main{overflow-y:auto;overflow-x:hidden;background:var(--bg);display:flex;flex-direction:column}
+
+/* EMPTY */
+.empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:40px 24px;text-align:center}
+.empty-ring{width:90px;height:90px;border-radius:50%;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:2.4rem;position:relative;background:var(--surface)}
+.empty-ring::before{content:'';position:absolute;inset:-1px;border-radius:50%;border:2px solid transparent;border-top-color:var(--lime);animation:spin 3s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.empty h2{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:1px;color:var(--text);}
-.empty p{color:var(--muted);font-size:0.84rem;max-width:320px;line-height:1.7}
-.empty-hints{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
-.hint{display:flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:7px 13px;font-size:0.73rem;color:var(--muted);}
-.hint-num{font-family:'Bebas Neue',sans-serif;font-size:1rem;color:var(--lime);}
-.loading{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;}
-.load-ring{width:70px;height:70px;position:relative;}
-.load-ring::before,.load-ring::after{content:'';position:absolute;inset:0;border-radius:50%;border:2px solid transparent;}
-.load-ring::before{border-top-color:var(--lime);animation:spin 0.9s linear infinite}
-.load-ring::after{border-bottom-color:rgba(200,255,0,0.3);animation:spin 1.4s linear infinite reverse;inset:8px}
-.load-emoji{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.5rem;}
-.load-text{text-align:center}
-.load-text strong{display:block;font-size:1rem;margin-bottom:4px}
-.load-text span{font-size:0.8rem;color:var(--muted)}
-.results-inner{padding:22px 22px 48px;display:flex;flex-direction:column;gap:20px}
-.res-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;}
-.res-title{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:1px;line-height:1.1;}
-.res-title .hl{color:var(--lime)}
-.res-sub{font-size:0.77rem;color:var(--muted);margin-top:4px;line-height:1.5}
-.filter-row{display:flex;gap:7px;flex-wrap:wrap}
-.f-btn{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:7px 13px;font-size:0.71rem;font-weight:600;color:var(--muted);cursor:pointer;font-family:'Space Grotesk',sans-serif;transition:all 0.15s;text-transform:uppercase;}
-.f-btn:hover,.f-btn.on{background:var(--lime-dim);border-color:rgba(200,255,0,0.35);color:var(--lime);}
-.stats-bar{display:flex;gap:12px;flex-wrap:wrap;}
-.stat-pill{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:10px;flex:1;min-width:90px;}
-.stat-icon{font-size:1.2rem}
-.stat-val{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--lime);line-height:1}
-.stat-lbl{font-size:0.66rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
-.recipe-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;}
-.filter-empty{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:60px 20px;text-align:center;}
-.rcard{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;cursor:pointer;transition:all 0.2s;position:relative;outline:none;}
-.rcard:hover{border-color:var(--lime);transform:translateY(-4px);box-shadow:0 8px 40px rgba(0,0,0,0.5);}
-.thumb{position:relative;aspect-ratio:16/9;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:3rem;flex-shrink:0;}
-.thumb-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.55);opacity:0;transition:opacity 0.2s;}
-.rcard:hover .thumb-overlay{opacity:1}
-.play-btn{width:50px;height:50px;border-radius:50%;background:var(--lime);display:flex;align-items:center;justify-content:center;color:#0a0a0a;font-size:1.2rem;}
-.thumb-badges{position:absolute;top:10px;left:10px;display:flex;flex-direction:column;gap:5px;}
-.badge{font-size:0.62rem;font-weight:700;padding:3px 8px;border-radius:6px;letter-spacing:0.5px;text-transform:uppercase;display:inline-flex;align-items:center;}
-.b-match{background:var(--lime);color:#0a0a0a}
-.b-easy{background:rgba(200,255,0,0.12);border:1px solid rgba(200,255,0,0.3);color:var(--lime)}
-.b-medium{background:rgba(255,190,0,0.12);border:1px solid rgba(255,190,0,0.3);color:#ffbe00}
-.b-hard{background:rgba(255,59,59,0.12);border:1px solid rgba(255,59,59,0.3);color:var(--red)}
-.cbody{padding:13px 14px 15px;display:flex;flex-direction:column;gap:10px;flex:1}
-.cname{font-weight:700;font-size:0.93rem;line-height:1.3}
-.cmeta{display:flex;gap:12px;flex-wrap:wrap}
-.cmeta-i{display:flex;align-items:center;gap:5px;font-size:0.71rem;color:var(--muted)}
-.mbar-row{display:flex;align-items:center;gap:10px}
+.empty h2{font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;letter-spacing:-0.5px}
+.empty p{color:var(--muted);font-size:0.82rem;max-width:300px;line-height:1.8}
+.steps{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.step{display:flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:0.7rem;color:var(--muted)}
+.step-n{font-family:'Syne',sans-serif;font-size:0.9rem;font-weight:800;color:var(--lime)}
+
+/* LOADING */
+.loading{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px}
+.load-ring{width:64px;height:64px;position:relative}
+.load-ring::before,.load-ring::after{content:'';position:absolute;inset:0;border-radius:50%;border:2px solid transparent}
+.load-ring::before{border-top-color:var(--lime);animation:spin 0.8s linear infinite}
+.load-ring::after{border-bottom-color:rgba(200,255,0,0.25);animation:spin 1.3s linear infinite reverse;inset:7px}
+.load-emoji{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.4rem}
+.load-txt{text-align:center}
+.load-txt strong{display:block;font-size:0.95rem;margin-bottom:4px}
+.load-txt span{font-size:0.78rem;color:var(--muted)}
+
+/* RESULTS */
+.results{padding:20px 20px 48px;display:flex;flex-direction:column;gap:18px}
+.res-hdr{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.res-title{font-family:'Syne',sans-serif;font-size:1.7rem;font-weight:800;letter-spacing:-0.5px;line-height:1.15}
+.res-title span{color:var(--lime)}
+.res-sub{font-size:0.74rem;color:var(--muted);margin-top:4px;line-height:1.6}
+.filters{display:flex;gap:6px;flex-wrap:wrap}
+.flt{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:0.68rem;font-weight:600;color:var(--muted);letter-spacing:0.3px;text-transform:uppercase;transition:all 0.15s}
+.flt.on{background:var(--lime2);border-color:rgba(200,255,0,0.3);color:var(--lime)}
+.stats{display:flex;gap:10px;flex-wrap:wrap}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px;flex:1;min-width:80px}
+.stat-ico{font-size:1.1rem}
+.stat-val{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;color:var(--lime);line-height:1}
+.stat-lbl{font-size:0.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:1px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.no-flt{grid-column:1/-1;text-align:center;padding:50px 20px;color:var(--muted);font-size:0.84rem}
+
+/* CARD */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;cursor:pointer;transition:all 0.2s;display:flex;flex-direction:column}
+.card:active{border-color:var(--lime);transform:scale(0.98)}
+.thumb{position:relative;aspect-ratio:16/9;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:2.8rem;flex-shrink:0}
+.thumb-ov{position:absolute;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s}
+.card:hover .thumb-ov{opacity:1}
+.play{width:44px;height:44px;border-radius:50%;background:var(--lime);display:flex;align-items:center;justify-content:center;color:#000;font-size:1rem}
+.thumb-badges{position:absolute;top:8px;left:8px;display:flex;flex-direction:column;gap:4px}
+.bdg{font-size:0.6rem;font-weight:700;padding:3px 7px;border-radius:5px;letter-spacing:0.5px;text-transform:uppercase;display:inline-flex}
+.bdg-pct{background:var(--lime);color:#000}
+.bdg-easy{background:rgba(200,255,0,0.12);border:1px solid rgba(200,255,0,0.25);color:var(--lime)}
+.bdg-med{background:rgba(255,184,0,0.12);border:1px solid rgba(255,184,0,0.25);color:var(--amber)}
+.bdg-hard{background:rgba(255,68,68,0.12);border:1px solid rgba(255,68,68,0.25);color:var(--red)}
+.vid-tag{position:absolute;top:8px;right:8px;font-size:0.55rem;font-weight:700;padding:2px 5px;border-radius:4px;text-transform:uppercase;letter-spacing:0.3px}
+.cbody{padding:12px 13px 14px;display:flex;flex-direction:column;gap:8px;flex:1}
+.cname{font-weight:700;font-size:0.9rem;line-height:1.35}
+.cmeta{display:flex;gap:10px;flex-wrap:wrap}
+.cmeta-i{font-size:0.68rem;color:var(--muted);display:flex;align-items:center;gap:4px}
+.mbar{display:flex;align-items:center;gap:8px}
 .mbar-bg{flex:1;height:3px;background:var(--border);border-radius:3px;overflow:hidden}
-.mbar-fg{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--lime),#80ff80);}
-.mbar-pct{font-size:0.69rem;font-weight:700;color:var(--lime);white-space:nowrap;min-width:32px;text-align:right}
-.ing-pills{display:flex;flex-wrap:wrap;gap:5px}
-.ip{font-size:0.65rem;font-weight:500;padding:2px 7px;border-radius:5px;}
-.ip-have{background:rgba(200,255,0,0.1);border:1px solid rgba(200,255,0,0.2);color:var(--lime)}
-.ip-need{background:rgba(255,190,0,0.08);border:1px solid rgba(255,190,0,0.2);color:#ffbe00}
-.btn-watch{margin-top:auto;background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:9px;color:var(--text);font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:0.78rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.18s;text-decoration:none;text-transform:uppercase;}
-.btn-watch:hover{background:var(--lime);color:#0a0a0a;border-color:var(--lime);}
-.yt-logo{width:20px;height:14px;background:#ff0000;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:0.55rem;color:#fff;flex-shrink:0;font-weight:900;}
-.err{background:rgba(255,59,59,0.06);border:1px solid rgba(255,59,59,0.2);border-radius:var(--radius);padding:20px;display:flex;gap:14px;}
-.err-icon{font-size:1.6rem;flex-shrink:0}
-.err-msg strong{display:block;margin-bottom:4px}
-.err-msg p{font-size:0.81rem;color:var(--muted)}
-.btn-retry{margin-top:12px;background:var(--lime);border:none;border-radius:8px;padding:8px 16px;color:#0a0a0a;font-weight:700;font-size:0.78rem;cursor:pointer;font-family:'Space Grotesk',sans-serif;text-transform:uppercase;}
-.video-pending{display:inline-flex;align-items:center;gap:7px;margin-top:10px;font-size:0.71rem;font-weight:600;color:var(--lime);background:var(--lime-dim);border:1px solid rgba(200,255,0,0.25);border-radius:999px;padding:5px 12px;}
-.video-pending .dot{width:6px;height:6px;border-radius:50%;background:var(--lime);animation:pulse 1.1s ease-in-out infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.25}}
-.ad-banner{margin-top:4px;border-top:1px solid var(--border);padding-top:16px;}
-.ad-label{font-size:0.58rem;text-transform:uppercase;letter-spacing:2px;color:var(--muted2);margin-bottom:8px;}
-.ad-mock{background:var(--surface);border:1px dashed var(--border);border-radius:var(--radius-sm);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:0.8rem;color:var(--muted);}
-.btn-go-pro-small{background:var(--lime);border:none;border-radius:8px;padding:7px 14px;font-size:0.73rem;font-weight:700;color:#0a0a0a;cursor:pointer;font-family:'Space Grotesk',sans-serif;}
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px;}
-.modal-overlay.open{display:flex;}
-.modal{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:36px 32px;max-width:400px;width:100%;position:relative;text-align:center;box-shadow:0 24px 80px rgba(0,0,0,0.6);}
-.modal-close{position:absolute;top:14px;right:14px;background:var(--card2);border:1px solid var(--border);border-radius:50%;width:30px;height:30px;color:var(--muted);font-size:0.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;}
-.modal-icon{font-size:2.5rem;margin-bottom:10px;}
-.modal-title{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:1px;margin-bottom:8px;}
+.mbar-fg{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--lime),#80ff80)}
+.mbar-pct{font-size:0.66rem;font-weight:700;color:var(--lime);min-width:30px;text-align:right}
+.ings-row{display:flex;flex-wrap:wrap;gap:4px}
+.ing-tag{font-size:0.62rem;font-weight:500;padding:2px 6px;border-radius:4px}
+.ing-have{background:rgba(200,255,0,0.08);border:1px solid rgba(200,255,0,0.18);color:var(--lime)}
+.ing-need{background:rgba(255,184,0,0.07);border:1px solid rgba(255,184,0,0.18);color:var(--amber)}
+.watch-btn{margin-top:auto;background:var(--card2);border:1px solid var(--border);border-radius:var(--rs);padding:9px;color:var(--text);font-weight:600;font-size:0.75rem;display:flex;align-items:center;justify-content:center;gap:7px;text-decoration:none;text-transform:uppercase;letter-spacing:0.4px;transition:all 0.15s}
+.watch-btn:active{background:var(--lime);color:#000;border-color:var(--lime)}
+.yt-ico{width:18px;height:13px;background:#ff0000;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:0.5rem;color:#fff;font-weight:900;flex-shrink:0}
+.vid-pend{display:inline-flex;align-items:center;gap:6px;margin-top:8px;font-size:0.68rem;font-weight:600;color:var(--lime);background:var(--lime2);border:1px solid rgba(200,255,0,0.2);border-radius:999px;padding:4px 10px}
+.vid-dot{width:5px;height:5px;border-radius:50%;background:var(--lime);animation:pulse 1s ease-in-out infinite}
+
+/* ERROR */
+.err-box{background:rgba(255,68,68,0.05);border:1px solid rgba(255,68,68,0.18);border-radius:var(--r);padding:18px;display:flex;gap:12px;margin:20px}
+.err-ico{font-size:1.5rem;flex-shrink:0}
+.err-txt strong{display:block;margin-bottom:3px;font-size:0.9rem}
+.err-txt p{font-size:0.78rem;color:var(--muted);line-height:1.5}
+.retry-btn{margin-top:10px;background:var(--lime);border-radius:8px;padding:7px 14px;color:#000;font-weight:700;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.3px}
+
+/* AD */
+.ad-wrap{border-top:1px solid var(--border);padding-top:14px;margin-top:4px}
+.ad-lbl{font-size:0.55rem;text-transform:uppercase;letter-spacing:2px;color:var(--muted2);margin-bottom:7px}
+.ad-inner{background:var(--surface);border:1px dashed var(--border);border-radius:var(--rs);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.ad-txt{font-size:0.78rem;color:var(--muted)}
+.ad-pro-btn{background:var(--lime);border-radius:7px;padding:6px 13px;font-size:0.7rem;font-weight:700;color:#000}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:100;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-bg.show{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:32px 28px;max-width:380px;width:100%;position:relative;text-align:center}
+.modal-x{position:absolute;top:12px;right:12px;background:var(--card2);border:1px solid var(--border);border-radius:50%;width:28px;height:28px;color:var(--muted);font-size:0.85rem;display:flex;align-items:center;justify-content:center}
+.modal-ico{font-size:2.2rem;margin-bottom:8px}
+.modal-title{font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;letter-spacing:-0.5px;margin-bottom:6px}
 .modal-title span{color:var(--lime)}
-.modal-sub{font-size:0.84rem;color:var(--muted);margin-bottom:20px;line-height:1.6;}
-.modal-perks{list-style:none;text-align:left;display:flex;flex-direction:column;gap:8px;margin-bottom:22px;background:var(--card);border-radius:var(--radius-sm);padding:16px 18px;}
-.modal-perks li{font-size:0.83rem;color:var(--text);}
-.modal-price{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;color:var(--lime);letter-spacing:1px;margin-bottom:16px;}
-.modal-price span{font-size:1rem;color:var(--muted);font-family:'Space Grotesk',sans-serif;}
-.btn-upgrade{display:block;background:var(--lime);border-radius:var(--radius-sm);padding:15px;color:#0a0a0a;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1rem;text-decoration:none;transition:all 0.15s;letter-spacing:0.5px;text-transform:uppercase;}
-.modal-note{font-size:0.7rem;color:var(--muted2);margin-top:12px;}
-@media(max-width:820px){html,body{overflow:auto;height:auto}.app{grid-template-columns:1fr}.sidebar{border-right:none;border-bottom:1px solid var(--border);max-height:70vh;}.main{min-height:60vh}.recipe-grid{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}header{padding:11px 15px}.results-inner{padding:14px 13px 40px}}
-@media(max-width:480px){.recipe-grid{grid-template-columns:1fr}}
+.modal-sub{font-size:0.8rem;color:var(--muted);margin-bottom:18px;line-height:1.7}
+.modal-perks{list-style:none;text-align:left;background:var(--card);border-radius:var(--rs);padding:14px 16px;margin-bottom:18px;display:flex;flex-direction:column;gap:7px}
+.modal-perks li{font-size:0.8rem}
+.modal-price{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;color:var(--lime);margin-bottom:14px}
+.modal-price span{font-size:0.9rem;color:var(--muted);font-family:'DM Sans',sans-serif;font-weight:400}
+.upgrade-btn{display:block;background:var(--lime);border-radius:var(--rs);padding:14px;color:#000;font-weight:700;font-size:0.95rem;text-decoration:none;letter-spacing:0.3px;text-transform:uppercase}
+.modal-note{font-size:0.65rem;color:var(--muted2);margin-top:10px}
+
+/* RESPONSIVE */
+@media(max-width:780px){
+  html,body{overflow:auto;height:auto}
+  .layout{grid-template-columns:1fr;height:auto}
+  .sidebar{border-right:none;border-bottom:1px solid var(--border);max-height:75vh}
+  .main{min-height:60vh}
+  .grid{grid-template-columns:1fr}
+  .hdr{padding:11px 14px}
+  .results{padding:14px 12px 40px}
+}
 @media(prefers-reduced-motion:reduce){*{animation-duration:0.01ms!important;transition-duration:0.01ms!important}}
 </style>
 </head>
-<body><header>
+<body>
+
+<header class="hdr">
   <div class="logo">
-    <div class="logo-mark"></div>
+    <div class="logo-icon">👨‍🍳</div>
     <div>
-      <div class="logo-name">Super<span>Chef</span></div>
+      <div class="logo-text">Super<span>Chef</span></div>
       <div class="logo-sub">AI Recipe Finder</div>
     </div>
   </div>
-  <div class="header-right">
-    <div class="search-counter" id="searchCounter"></div>
-    <button class="btn-pro" id="proBadge" onclick="showUpgradeModal('header')" style="display:none">⚡ Go Pro</button>
-    <div class="ai-pill"><div class="ai-dot"></div>Claude AI</div>
+  <div class="hdr-right">
+    <div class="counter" id="counter"></div>
+    <button class="pro-btn" id="proBadge" onclick="openModal('header')">⚡ Go Pro</button>
+    <div class="ai-badge"><div class="ai-dot"></div>Claude AI</div>
   </div>
 </header>
-<div class="app">
+
+<div class="layout">
+
 <aside class="sidebar">
-<div class="sidebar-tabs">
-<button class="stab on" onclick="switchTab('my')" ontouchend="event.preventDefault();switchTab('my')" id="tab-my">🧺 My Ingredients</button>
-<button class="stab" onclick="switchTab('browse')" ontouchend="event.preventDefault();switchTab('browse')" id="tab-browse">🗂 Browse All</button>
-</div>
-<div class="tab-panel on" id="panel-my" style="overflow-y:auto;">
-<div class="limit-banner" id="limitBanner" style="display:none">
-<span id="limitBannerText"></span>
-<button onclick="showUpgradeModal('banner')">Upgrade →</button>
-</div>
-<div class="s-block">
-<div class="s-label">Your Ingredients<span class="s-label-count" id="ingCount" style="display:none">0</span></div>
-<div class="input-wrap">
-<input class="ing-in" id="ingIn" type="text" placeholder="Type any ingredient…" autocomplete="off" spellcheck="false"/>
-<button class="btn-add" onclick="addIng()" ontouchend="event.preventDefault();addIng()">+</button>
-</div>
-<div class="ing-limit-note" id="ingLimitNote" style="display:none"></div>
-</div>
-<div class="s-block" id="chipsBlock" style="display:none;border-top:none;padding-top:0">
-<div class="chips" id="chips"></div>
-</div>
-<div class="s-block">
-<button class="btn-find" id="findBtn" onclick="findRecipes()" disabled>🔍 Find What I Can Cook</button>
-</div>
-</div>
-<div class="tab-panel" id="panel-browse">
-<div class="browser-panel">
-<div class="browser-search-wrap">
-<div class="browser-search">
-<span class="browser-search-icon">🔍</span>
-<input class="browser-search-in" id="browserSearch" type="text" placeholder="Search any ingredient…" autocomplete="off"/>
-<button class="browser-search-clear" id="browserSearchClear" onclick="clearBrowserSearch()">✕</button>
-</div>
-</div>
-<div class="browser-scroll" id="browserScroll"></div>
-</div>
-</div>
+  <div class="tabs">
+    <button class="tab on" id="tab0" onclick="switchTab(0)">🧺 My Ingredients</button>
+    <button class="tab" id="tab1" onclick="switchTab(1)">🗂 Browse All</button>
+  </div>
+
+  <!-- MY INGREDIENTS -->
+  <div class="panel on" id="panel0">
+    <div class="ing-panel">
+      <div class="limit-bar" id="limitBar">
+        <span id="limitMsg"></span>
+        <button class="limit-bar-btn" onclick="openModal('limit')">Upgrade →</button>
+      </div>
+      <div class="sec">
+        <div class="sec-label">
+          Your Ingredients
+          <span class="sec-count" id="ingCount"></span>
+        </div>
+        <div class="ing-row">
+          <input class="ing-input" id="ingInput" type="text" placeholder="Type any ingredient…" autocomplete="off" autocorrect="off" spellcheck="false"/>
+          <button class="add-btn" id="addBtn">+</button>
+        </div>
+        <div class="ing-note" id="ingNote"></div>
+      </div>
+      <div class="chips-wrap" id="chipsWrap" style="display:none">
+        <div class="chips" id="chips"></div>
+      </div>
+      <div class="find-sec">
+        <button class="find-btn" id="findBtn" disabled>🔍 Find What I Can Cook</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BROWSE -->
+  <div class="panel" id="panel1">
+    <div class="browser-panel">
+      <div class="bsearch-wrap">
+        <div class="bsearch">
+          <span class="bsearch-icon">🔍</span>
+          <input class="bsearch-input" id="bsearchInput" type="text" placeholder="Search ingredients…" autocomplete="off" autocorrect="off" spellcheck="false"/>
+          <button class="bsearch-clear" id="bsearchClear">✕</button>
+        </div>
+      </div>
+      <div class="blist" id="blist"></div>
+    </div>
+  </div>
+
 </aside>
+
 <main class="main" id="main">
-<div class="empty">
-<div class="empty-icon">🥘</div>
-<h2>What's in your kitchen?</h2>
-<p>Add ingredients from your fridge — or browse 1000+ ingredients by category. The AI finds every dish you can cook and links you to a YouTube tutorial.</p>
-<div class="empty-hints">
-<div class="hint"><span class="hint-num">01</span> Add ingredients</div>
-<div class="hint"><span class="hint-num">02</span> Find recipes</div>
-<div class="hint"><span class="hint-num">03</span> Watch &amp; cook</div>
-</div>
-</div>
+  <div class="empty" id="emptyState">
+    <div class="empty-ring">🥘</div>
+    <h2>What's in your kitchen?</h2>
+    <p>Add ingredients you have, then let AI find every recipe you can cook — with YouTube tutorials.</p>
+    <div class="steps">
+      <div class="step"><span class="step-n">01</span> Add ingredients</div>
+      <div class="step"><span class="step-n">02</span> Find recipes</div>
+      <div class="step"><span class="step-n">03</span> Watch &amp; cook</div>
+    </div>
+  </div>
 </main>
+
 </div>
-<div class="modal-overlay" id="upgradeModal" onclick="closeModal(event)">
-<div class="modal">
-<button class="modal-close" onclick="document.getElementById('upgradeModal').classList.remove('open')">✕</button>
-<div class="modal-icon">⚡</div>
-<h2 class="modal-title">Upgrade to <span>SuperChef Pro</span></h2>
-<p class="modal-sub" id="modalSubtext">You've used all your free searches for today.</p>
-<ul class="modal-perks">
-<li>✅ Unlimited recipe searches</li>
-<li>✅ Zero ads, ever</li>
-<li>✅ More recipe results</li>
-<li>✅ Priority AI responses</li>
-</ul>
-<div class="modal-price">$9.99/mo <span>per month</span></div>
-<a class="btn-upgrade" href="https://buy.stripe.com/YOUR_STRIPE_LINK" target="_blank">Start Pro — $9.99/mo</a>
-<p class="modal-note">Cancel anytime. Secure payment via Stripe.</p>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modalBg" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <button class="modal-x" onclick="closeModal()">✕</button>
+    <div class="modal-ico">⚡</div>
+    <h2 class="modal-title">Upgrade to <span>Pro</span></h2>
+    <p class="modal-sub" id="modalSub">Unlock unlimited searches and remove ads.</p>
+    <ul class="modal-perks">
+      <li>✅ Unlimited searches/day</li>
+      <li>✅ No ads, ever</li>
+      <li>✅ More recipes per search</li>
+      <li>✅ Priority responses</li>
+    </ul>
+    <div class="modal-price">$9.99 <span>/month</span></div>
+    <a class="upgrade-btn" href="https://buy.stripe.com/YOUR_STRIPE_LINK" target="_blank" rel="noopener">Start Pro — $9.99/mo</a>
+    <p class="modal-note">Cancel anytime · Secure payment via Stripe</p>
+  </div>
 </div>
-</div>
+
 <script>
-const PROXY_URL='/api/proxy';
-const FREE_SEARCHES_PER_DAY=5;
-const PRO_PRICE='$9.99/mo';
-const Freemium=(()=>{
-const KEY_COUNT='superchef:searches';
-const KEY_DATE='superchef:date';
-const KEY_PRO='superchef:pro';
-function todayStr(){return new Date().toISOString().slice(0,10);}
-function getCount(){const d=localStorage.getItem(KEY_DATE);if(d!==todayStr()){localStorage.setItem(KEY_DATE,todayStr());localStorage.setItem(KEY_COUNT,'0');}return parseInt(localStorage.getItem(KEY_COUNT)||'0',10);}
-function isPro(){return localStorage.getItem(KEY_PRO)==='1';}
-function increment(){localStorage.setItem(KEY_COUNT,String(getCount()+1));}
-function remaining(){return Math.max(0,FREE_SEARCHES_PER_DAY-getCount());}
-return{isPro,getCount,increment,remaining};
+// ── CONFIG ──────────────────────────────
+const API = '/api/proxy';
+const FREE_PER_DAY = 5;
+
+// ── FREEMIUM ────────────────────────────
+const FM = (() => {
+  function today(){ return new Date().toISOString().slice(0,10); }
+  function count(){
+    if(localStorage.getItem('sc:date') !== today()){ localStorage.setItem('sc:date',today()); localStorage.setItem('sc:n','0'); }
+    return parseInt(localStorage.getItem('sc:n')||'0',10);
+  }
+  return {
+    isPro: () => localStorage.getItem('sc:pro')==='1',
+    remaining: () => Math.max(0, FREE_PER_DAY - count()),
+    increment: () => localStorage.setItem('sc:n', String(count()+1)),
+  };
 })();
-const Storage=(()=>{
-const HAS_NATIVE=typeof window!=='undefined'&&typeof window.storage!=='undefined';
-let _mem={};
-return{
-async get(key){if(HAS_NATIVE)return window.storage.get(key);return _mem[key]!=null?{value:_mem[key]}:null;},
-async set(key,value){if(HAS_NATIVE)return window.storage.set(key,value);_mem[key]=value;return{value};}
-};
-})();const CATEGORIES=[
-{name:'Meat & Poultry',emoji:'🥩',items:['Chicken breast','Chicken thigh','Chicken drumstick','Chicken wing','Whole chicken','Ground chicken','Duck breast','Duck leg','Turkey breast','Ground turkey','Beef steak','Ground beef','Beef brisket','Beef ribs','Short ribs','Chuck roast','Sirloin','Ribeye','Filet mignon','Flank steak','Skirt steak','Tri-tip','Beef shank','Oxtail','Pork belly','Pork chop','Pork loin','Ground pork','Pork ribs','Baby back ribs','Pork shoulder','Pork tenderloin','Ham','Prosciutto','Pancetta','Bacon','Lamb chop','Ground lamb','Lamb shank','Lamb shoulder','Leg of lamb','Rack of lamb','Veal','Bison','Venison','Rabbit','Goat meat','Quail','Sausage','Italian sausage','Chorizo','Andouille','Bratwurst','Kielbasa','Hot dog','Pepperoni','Salami','Mortadella','Lard','Tallow']},
-{name:'Seafood & Fish',emoji:'🐟',items:['Salmon','Tuna','Cod','Tilapia','Halibut','Sea bass','Mahi-mahi','Swordfish','Trout','Sardine','Mackerel','Herring','Anchovy','Snapper','Grouper','Flounder','Sole','Catfish','Pollock','Haddock','Shrimp','Tiger shrimp','Prawns','Lobster','Crab','Scallop','Clam','Oyster','Mussel','Squid','Calamari','Octopus','Canned tuna','Canned salmon','Canned sardine','Smoked salmon','Fish sauce','Shrimp paste']},
-{name:'Vegetables & Greens',emoji:'🥦',items:['Garlic','Onion','Shallot','Scallion','Leek','Chive','Red onion','White onion','Yellow onion','Tomato','Cherry tomato','Roma tomato','Bell pepper','Red bell pepper','Green bell pepper','Yellow bell pepper','Jalapeño','Serrano pepper','Habanero','Poblano','Carrot','Potato','Sweet potato','Yam','Russet potato','Celery','Cucumber','Zucchini','Yellow squash','Butternut squash','Pumpkin','Eggplant','Broccoli','Cauliflower','Cabbage','Red cabbage','Napa cabbage','Brussels sprouts','Bok choy','Kale','Spinach','Arugula','Romaine lettuce','Iceberg lettuce','Swiss chard','Collard greens','Asparagus','Artichoke','Fennel','Turnip','Parsnip','Radish','Daikon radish','Beet','Corn','Pea','Snow pea','Edamame','Green bean','Okra','Avocado','Plantain','Bamboo shoot','Water chestnut','Taro','Cassava']},
-{name:'Fruits',emoji:'🍎',items:['Apple','Pear','Banana','Orange','Blood orange','Tangerine','Mandarin','Clementine','Grapefruit','Lemon','Lime','Pomelo','Yuzu','Kumquat','Strawberry','Blueberry','Raspberry','Blackberry','Cranberry','Cherry','Grape','Raisin','Melon','Cantaloupe','Honeydew','Watermelon','Mango','Pineapple','Papaya','Guava','Passion fruit','Dragon fruit','Lychee','Jackfruit','Date','Medjool date','Fig','Dried fig','Apricot','Peach','Nectarine','Plum','Pomegranate','Persimmon','Kiwi','Coconut','Olive','Tamarind']},
-{name:'Dairy & Eggs',emoji:'🥛',items:['Egg','Egg white','Egg yolk','Milk','Whole milk','Skim milk','Buttermilk','Evaporated milk','Sweetened condensed milk','Oat milk','Almond milk','Soy milk','Coconut milk','Coconut cream','Heavy cream','Whipping cream','Half and half','Sour cream','Butter','Unsalted butter','Salted butter','Ghee','Brown butter','Yogurt','Greek yogurt','Kefir','Cream cheese','Ricotta','Mascarpone','Cottage cheese','Brie','Feta','Goat cheese','Blue cheese','Cheddar','Sharp cheddar','Mozzarella','Fresh mozzarella','Burrata','Parmesan','Parmigiano-Reggiano','Pecorino','Gruyère','Emmental','Swiss cheese','Gouda','Halloumi','Paneer','Queso Fresco','Cotija']},
-{name:'Grains & Pasta',emoji:'🍚',items:['White rice','Brown rice','Jasmine rice','Basmati rice','Arborio rice','Sushi rice','Wild rice','Black rice','Pasta','Spaghetti','Linguine','Fettuccine','Rigatoni','Penne','Fusilli','Farfalle','Orzo','Lasagna sheets','Gnocchi','Ramen noodles','Udon noodles','Soba noodles','Rice noodles','Glass noodles','Egg noodles','Wonton wrappers','Dumpling wrappers','Rice paper','Couscous','Bulgur','Farro','Quinoa','Millet','Oats','Rolled oats','Cornmeal','Polenta','All-purpose flour','Bread flour','Whole wheat flour','Almond flour','Cornstarch','Semolina','Bread','Sourdough bread','Pita bread','Naan','Tortilla','Corn tortilla','Flour tortilla','Breadcrumbs','Panko']},
-{name:'Legumes & Beans',emoji:'🫘',items:['Black bean','Kidney bean','Pinto bean','Navy bean','Cannellini bean','Chickpea','Lentil','Red lentil','Green lentil','Split pea','Fava bean','Lima bean','Black-eyed pea','Mung bean','Edamame','Tofu','Silken tofu','Firm tofu','Extra-firm tofu','Tempeh','Miso','White miso','Red miso','Seitan']},
-{name:'Mushrooms',emoji:'🍄',items:['Button mushroom','Cremini mushroom','Portobello mushroom','Shiitake mushroom','King oyster mushroom','Oyster mushroom','Enoki mushroom','Chanterelle','Porcini','Morel','Maitake','Dried shiitake','Dried porcini','Truffle','Truffle oil']},
-{name:'Herbs & Aromatics',emoji:'🌿',items:['Basil','Thai basil','Parsley','Flat-leaf parsley','Cilantro','Mint','Thyme','Lemon thyme','Rosemary','Oregano','Sage','Tarragon','Dill','Bay leaf','Lemongrass','Kaffir lime leaf','Curry leaf','Shiso','Chives','Garlic chives','Fennel fronds','Watercress','Sorrel']},
-{name:'Spices & Seasonings',emoji:'🌶️',items:['Salt','Sea salt','Kosher salt','Black pepper','White pepper','Sichuan pepper','Cumin','Ground cumin','Coriander','Ground coriander','Turmeric','Paprika','Sweet paprika','Smoked paprika','Chili powder','Cayenne','Red pepper flakes','Gochugaru','Cinnamon','Ground cinnamon','Cardamom','Cloves','Nutmeg','Allspice','Star anise','Fennel seeds','Mustard seeds','Fenugreek','Sumac','Saffron','Vanilla','Vanilla bean','Vanilla extract','Dried ginger','Ground ginger','Wasabi','Horseradish']},
-{name:'Spice Blends',emoji:'🧂',items:['Garam masala','Curry powder','Ras el hanout','Baharat','Berbere','Dukkah','Harissa powder','Shawarma spice','Taco seasoning','Cajun seasoning','Old Bay','Jerk seasoning','Five spice','Chinese five spice','Furikake','Chaat masala','Tandoori masala','Everything bagel seasoning','Onion powder','Garlic powder']},
-{name:'Sauces & Condiments',emoji:'🫙',items:['Soy sauce','Tamari','Dark soy sauce','Fish sauce','Oyster sauce','Hoisin sauce','Teriyaki sauce','Worcestershire sauce','Hot sauce','Sriracha','Sambal oelek','Gochujang','Doubanjiang','Chili oil','Tahini','Harissa','Pesto','Tomato paste','Tomato sauce','Marinara sauce','Chimichurri','Salsa','Guacamole','Hummus','Tzatziki','Mayonnaise','Ketchup','Mustard','Dijon mustard','Whole grain mustard','Apple cider vinegar','Red wine vinegar','White wine vinegar','Balsamic vinegar','Rice vinegar','Lemon juice','Lime juice','Honey','Maple syrup','Tamarind paste','Miso paste','Ponzu','Coconut aminos']},
-{name:'Oils & Fats',emoji:'🫒',items:['Olive oil','Extra virgin olive oil','Vegetable oil','Canola oil','Sunflower oil','Coconut oil','Peanut oil','Sesame oil','Toasted sesame oil','Avocado oil','Grapeseed oil','Butter','Ghee','Lard','Duck fat']},
-{name:'Nuts & Seeds',emoji:'🥜',items:['Almond','Sliced almond','Almond butter','Walnut','Pecan','Cashew','Cashew butter','Pistachio','Macadamia','Pine nut','Hazelnut','Peanut','Peanut butter','Sunflower seed','Pumpkin seed','Pepita','Sesame seed','Tahini','Flaxseed','Chia seed','Hemp seed','Poppy seed']},
-{name:'Pantry Essentials',emoji:'🛒',items:['All-purpose flour','Sugar','Brown sugar','Powdered sugar','Honey','Maple syrup','Molasses','Corn syrup','Salt','Baking powder','Baking soda','Yeast','Active dry yeast','Cream of tartar','Gelatin','Cornstarch','Cocoa powder','Dark chocolate','Milk chocolate','White chocolate','Chocolate chips','Vanilla extract','Chicken broth','Beef broth','Vegetable broth','Dashi','Bouillon','Stock','Red wine','White wine','Dry sherry','Mirin','Sake','Beer','Rum','Bourbon']},
-{name:'Canned & Preserved',emoji:'🥫',items:['Canned tomato','Crushed tomato','Diced tomato','Whole peeled tomato','Tomato paste','Canned tuna','Canned salmon','Canned sardine','Canned anchovy','Canned chickpea','Canned black bean','Canned white bean','Canned corn','Canned coconut milk','Canned pumpkin','Pickle','Kimchi','Sauerkraut','Capers','Olives','Kalamata olive','Sun-dried tomato','Roasted red pepper','Jalapeño (pickled)']},
-{name:'Baking & Sweets',emoji:'🍰',items:['Lemon curd','Jam','Strawberry jam','Raspberry jam','Nutella','Almond paste','Marzipan','Sprinkles','Food coloring','Coconut flakes','Rolled oats','Graham cracker','Phyllo dough','Puff pastry','Pie crust','Caramel','Dulce de leche','Butterscotch chips','White chocolate chips','Dark chocolate chips','Meringue powder','Pearl sugar','Candy melts']},
-{name:'Asian Pantry',emoji:'🥢',items:['Rice vinegar','Mirin','Sake','Soy sauce','Sesame oil','Oyster sauce','Hoisin sauce','Fish sauce','Gochujang','Doubanjiang','Star anise','Five spice','Shaoxing wine','Dashi','Kombu','Bonito flakes','Nori','Wakame','Miso paste','Tofu','Wonton wrappers','Rice paper','Rice noodles','Coconut milk','Red curry paste','Green curry paste','Tamarind paste','Palm sugar','Kaffir lime leaf','Lemongrass','Panko']},
-{name:'Mexican & Latin Pantry',emoji:'🌮',items:['Corn tortilla','Flour tortilla','Masa harina','Ancho chili','Guajillo chili','Chipotle in adobo','Tomatillo','Queso fresco','Cotija cheese','Refried beans','Black beans','Hominy','Epazote','Mexican oregano','Achiote paste','Cilantro','Lime','Jalapeño','Serrano pepper','Habanero','Salsa verde','Mole sauce']},
-{name:'Alcohol & Spirits',emoji:'🍷',items:['Red wine','White wine','Champagne','Dry sherry','Marsala wine','Port wine','Sake','Mirin','Beer','Lager','Stout','Cognac','Brandy','Rum','Dark rum','Bourbon','Whiskey','Vodka','Gin','Tequila','Mezcal','Kirsch','Grand Marnier','Amaretto']},
+
+// ── STORAGE ─────────────────────────────
+const S = (() => {
+  const native = typeof window.storage !== 'undefined';
+  const mem = {};
+  return {
+    get: async k => native ? window.storage.get(k) : (mem[k] != null ? {value:mem[k]} : null),
+    set: async (k,v) => { if(native) return window.storage.set(k,v); mem[k]=v; return {value:v}; },
+  };
+})();
+
+// ── CATEGORIES ──────────────────────────
+const CATS = [
+  {e:'🥩',n:'Meat & Poultry',i:['Chicken breast','Chicken thigh','Chicken wing','Ground chicken','Duck breast','Turkey breast','Ground turkey','Beef steak','Ground beef','Beef brisket','Sirloin','Ribeye','Flank steak','Beef shank','Pork belly','Pork chop','Pork loin','Ground pork','Pork ribs','Pork shoulder','Ham','Bacon','Prosciutto','Pancetta','Lamb chop','Ground lamb','Lamb shank','Leg of lamb','Veal','Sausage','Italian sausage','Chorizo','Bratwurst','Salami','Pepperoni','Hot dog','Lard']},
+  {e:'🐟',n:'Seafood & Fish',i:['Salmon','Tuna','Cod','Tilapia','Halibut','Sea bass','Mahi-mahi','Trout','Sardine','Mackerel','Anchovy','Snapper','Catfish','Haddock','Shrimp','Prawns','Lobster','Crab','Scallop','Clam','Oyster','Mussel','Squid','Calamari','Octopus','Canned tuna','Canned salmon','Smoked salmon','Fish sauce']},
+  {e:'🥦',n:'Vegetables',i:['Garlic','Onion','Shallot','Scallion','Leek','Red onion','Tomato','Cherry tomato','Bell pepper','Jalapeño','Carrot','Potato','Sweet potato','Celery','Cucumber','Zucchini','Butternut squash','Pumpkin','Eggplant','Broccoli','Cauliflower','Cabbage','Brussels sprouts','Bok choy','Kale','Spinach','Arugula','Romaine lettuce','Swiss chard','Collard greens','Asparagus','Fennel','Turnip','Radish','Beet','Corn','Peas','Green bean','Okra','Avocado','Bamboo shoot','Taro']},
+  {e:'🍎',n:'Fruits',i:['Apple','Pear','Banana','Orange','Lemon','Lime','Grapefruit','Strawberry','Blueberry','Raspberry','Blackberry','Cherry','Grape','Mango','Pineapple','Papaya','Watermelon','Melon','Cantaloupe','Peach','Plum','Apricot','Pomegranate','Kiwi','Coconut','Date','Fig','Tamarind','Olive']},
+  {e:'🥛',n:'Dairy & Eggs',i:['Egg','Milk','Whole milk','Buttermilk','Heavy cream','Sour cream','Butter','Unsalted butter','Ghee','Yogurt','Greek yogurt','Cream cheese','Ricotta','Mascarpone','Cottage cheese','Feta','Goat cheese','Cheddar','Mozzarella','Parmesan','Gruyère','Gouda','Halloumi','Paneer','Coconut milk','Evaporated milk','Condensed milk']},
+  {e:'🍚',n:'Grains & Pasta',i:['White rice','Brown rice','Basmati rice','Jasmine rice','Arborio rice','Pasta','Spaghetti','Penne','Fusilli','Fettuccine','Rigatoni','Orzo','Lasagna sheets','Gnocchi','Ramen noodles','Udon noodles','Soba noodles','Rice noodles','Egg noodles','Wonton wrappers','Couscous','Quinoa','Bulgur','Farro','Oats','Cornmeal','Polenta','Bread','Pita bread','Naan','Tortilla','Breadcrumbs','Panko']},
+  {e:'🫘',n:'Legumes & Beans',i:['Black bean','Kidney bean','Chickpea','Lentil','Red lentil','Green lentil','Pinto bean','White bean','Split pea','Fava bean','Edamame','Tofu','Silken tofu','Firm tofu','Tempeh','Miso']},
+  {e:'🍄',n:'Mushrooms',i:['Button mushroom','Cremini mushroom','Portobello mushroom','Shiitake mushroom','Oyster mushroom','Enoki mushroom','Porcini','Chanterelle','Dried shiitake','Truffle']},
+  {e:'🌿',n:'Herbs',i:['Basil','Thai basil','Parsley','Cilantro','Mint','Thyme','Rosemary','Oregano','Sage','Tarragon','Dill','Bay leaf','Lemongrass','Chives','Lavender']},
+  {e:'🌶️',n:'Spices',i:['Salt','Black pepper','Cumin','Coriander','Turmeric','Paprika','Smoked paprika','Chili powder','Cayenne','Gochugaru','Cinnamon','Cardamom','Cloves','Nutmeg','Allspice','Star anise','Mustard seeds','Fenugreek','Sumac','Saffron','Vanilla extract','Ground ginger','Wasabi','Horseradish']},
+  {e:'🧂',n:'Spice Blends',i:['Garam masala','Curry powder','Ras el hanout','Baharat','Berbere','Shawarma spice','Taco seasoning','Cajun seasoning','Old Bay','Jerk seasoning','Five spice','Chaat masala','Tandoori masala','Everything bagel seasoning','Garlic powder','Onion powder']},
+  {e:'🫙',n:'Sauces & Condiments',i:['Soy sauce','Tamari','Fish sauce','Oyster sauce','Hoisin sauce','Teriyaki sauce','Worcestershire sauce','Hot sauce','Sriracha','Sambal oelek','Gochujang','Tahini','Harissa','Pesto','Tomato paste','Tomato sauce','Mayonnaise','Ketchup','Mustard','Dijon mustard','Balsamic vinegar','Apple cider vinegar','Rice vinegar','Red wine vinegar','Lemon juice','Lime juice','Honey','Maple syrup','Tamarind paste','Miso paste','Coconut aminos']},
+  {e:'🫒',n:'Oils & Fats',i:['Olive oil','Extra virgin olive oil','Vegetable oil','Canola oil','Coconut oil','Sesame oil','Toasted sesame oil','Avocado oil','Peanut oil','Butter','Ghee','Lard','Duck fat']},
+  {e:'🥜',n:'Nuts & Seeds',i:['Almond','Walnut','Pecan','Cashew','Pistachio','Pine nut','Hazelnut','Peanut','Peanut butter','Almond butter','Sunflower seed','Pumpkin seed','Sesame seed','Tahini','Flaxseed','Chia seed','Hemp seed']},
+  {e:'🛒',n:'Pantry',i:['All-purpose flour','Sugar','Brown sugar','Baking powder','Baking soda','Yeast','Cornstarch','Cocoa powder','Dark chocolate','Chocolate chips','Vanilla extract','Chicken broth','Beef broth','Vegetable broth','Bouillon','Red wine','White wine','Beer','Mirin','Sake','Rum','Bourbon']},
+  {e:'🥫',n:'Canned & Preserved',i:['Canned tomato','Crushed tomato','Diced tomato','Tomato paste','Canned tuna','Canned chickpea','Canned black bean','Canned corn','Canned coconut milk','Kimchi','Sauerkraut','Capers','Olives','Sun-dried tomato','Roasted red pepper']},
+  {e:'🍷',n:'Alcohol (Cooking)',i:['Red wine','White wine','Dry sherry','Marsala wine','Beer','Sake','Mirin','Cognac','Brandy','Rum','Bourbon','Vodka','Tequila']},
 ];
-const MAX_INGREDIENTS=15;
-const EMOJI_MAP={pasta:'🍝',chicken:'🍗',egg:'🍳',rice:'🍚',soup:'🍲',salad:'🥗',bread:'🍞',pizza:'🍕',fish:'🐟',cake:'🎂',potato:'🥔',tomato:'🍅',cheese:'🧀',mushroom:'🍄',beef:'🥩',steak:'🥩',shrimp:'🦐',noodle:'🍜',curry:'🍛',taco:'🌮',burger:'🍔',sandwich:'🥪',omelette:'🍳',pancake:'🥞',tofu:'🫘',carrot:'🥕',avocado:'🥑',corn:'🌽',wrap:'🌯'};
-let ings=[];
-let isFetching=false;
-let openCats=new Set();
-let activeFilter='all';
-function getEmoji(n){const l=n.toLowerCase();for(const[k,v]of Object.entries(EMOJI_MAP)){if(l.includes(k))return v;}return'🍽️';}
-function getBg(n){const c0=n.charCodeAt(0)||0;const c3=n.length>3?(n.charCodeAt(3)||0):0;const h=(c0*23+c3*41)%360;return`linear-gradient(145deg,hsl(${h},30%,7%),hsl(${(h+50)%360},35%,12%))`;}
-function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
-function toProperCase(v){return v.trim().toLowerCase().replace(/\b\w/g,c=>c.toUpperCase());}
-function switchTab(tab){
-document.getElementById('tab-my').classList.toggle('on',tab==='my');
-document.getElementById('tab-browse').classList.toggle('on',tab==='browse');
-document.getElementById('panel-my').classList.toggle('on',tab==='my');
-document.getElementById('panel-browse').classList.toggle('on',tab==='browse');
-if(tab==='browse')renderBrowser('');
+
+// ── STATE ───────────────────────────────
+const MAX = 15;
+const EMOJIS = {pasta:'🍝',chicken:'🍗',egg:'🍳',rice:'🍚',soup:'🍲',salad:'🥗',bread:'🍞',pizza:'🍕',fish:'🐟',cake:'🎂',potato:'🥔',tomato:'🍅',cheese:'🧀',mushroom:'🍄',beef:'🥩',shrimp:'🦐',noodle:'🍜',curry:'🍛',taco:'🌮',burger:'🍔',omelette:'🍳',pancake:'🥞',tofu:'🫘',carrot:'🥕',avocado:'🥑'};
+let ings = [], fetching = false, openCats = new Set(), activeFilter = 'all';
+
+function ge(id){ return document.getElementById(id); }
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+function proper(s){ return s.trim().toLowerCase().replace(/\b\w/g,c=>c.toUpperCase()); }
+function emoji(n){ const l=n.toLowerCase(); for(const[k,v] of Object.entries(EMOJIS)){ if(l.includes(k)) return v; } return '🍽️'; }
+function bg(n){ const h=(n.charCodeAt(0)*23+(n.charCodeAt(3)||0)*41)%360; return `linear-gradient(145deg,hsl(${h},30%,6%),hsl(${(h+50)%360},35%,11%))`; }
+
+// ── TABS ────────────────────────────────
+function switchTab(i){
+  [0,1].forEach(j=>{
+    ge('tab'+j).classList.toggle('on',j===i);
+    ge('panel'+j).classList.toggle('on',j===i);
+  });
+  if(i===1) renderBrowser('');
 }
-function renderBrowser(query){
-const scroll=document.getElementById('browserScroll');
-const q=query.trim().toLowerCase();
-if(q){
-const results=[];
-CATEGORIES.forEach(cat=>{cat.items.forEach(item=>{if(item.toLowerCase().includes(q))results.push({item,cat:cat.name});});});
-if(results.length===0){scroll.innerHTML=`<div class="search-no-results">No ingredients found for "<b>${esc(q)}</b>".</div>`;return;}
-const addedSet=new Set(ings.map(x=>x.toLowerCase()));
-const atLimit=ings.length>=MAX_INGREDIENTS;
-const pills=results.map(r=>{const isAdded=addedSet.has(r.item.toLowerCase());const cls=isAdded?'ipill added':(atLimit?'ipill disabled-pill':'ipill');return`<button class="${cls}" onclick="browserAdd(this,'${esc(r.item)}')" ${atLimit&&!isAdded?'disabled':''}>${esc(r.item)}</button>`;}).join('');
-scroll.innerHTML=`<div class="search-results-label">Results (${results.length})</div><div style="padding:8px 16px 14px;display:flex;flex-wrap:wrap;gap:7px;">${pills}</div>`;
-return;
+
+// ── COUNTER UI ──────────────────────────
+function updateCounter(){
+  const el=ge('counter'), pb=ge('proBadge'), lb=ge('limitBar'), lm=ge('limitMsg');
+  if(FM.isPro()){ el.style.display='none'; pb.style.display='none'; lb.classList.remove('show'); return; }
+  const r=FM.remaining();
+  pb.style.display='flex'; el.style.display='flex';
+  if(r===0){ el.textContent='0 left'; el.className='counter out'; lb.classList.add('show'); lm.textContent='No searches left today.'; }
+  else if(r<=2){ el.textContent=r+' left'; el.className='counter warn'; lb.classList.add('show'); lm.textContent=`Only ${r} search${r===1?'':'es'} left today.`; }
+  else{ el.textContent=`${r}/${FREE_PER_DAY} left`; el.className='counter'; lb.classList.remove('show'); }
 }
-const addedSet=new Set(ings.map(x=>x.toLowerCase()));
-const atLimit=ings.length>=MAX_INGREDIENTS;
-scroll.innerHTML=CATEGORIES.map((cat,ci)=>{
-const isOpen=openCats.has(ci);
-const addedCount=cat.items.filter(i=>addedSet.has(i.toLowerCase())).length;
-const pills=cat.items.map(item=>{const isAdded=addedSet.has(item.toLowerCase());const cls=isAdded?'ipill added':(atLimit?'ipill disabled-pill':'ipill');return`<button class="${cls}" onclick="browserAdd(this,'${esc(item)}')" ${atLimit&&!isAdded?'disabled':''}>${esc(item)}</button>`;}).join('');
-return`<div class="cat-block${isOpen?' open':''}" id="cat-${ci}"><div class="cat-header" onclick="toggleCat(${ci})"><div class="cat-emoji">${cat.emoji}</div><div class="cat-info"><div class="cat-name">${esc(cat.name)}</div><div class="cat-sub">${addedCount>0?`${addedCount} added · `:''}${cat.items.length} ingredients</div></div><div class="cat-arrow">▼</div></div><div class="cat-pills">${pills}</div></div>`;
-}).join('');
+
+// ── MODAL ───────────────────────────────
+const MODAL_MSGS = {
+  header: 'Get unlimited searches and a completely ad-free experience.',
+  limit: "You've used all 5 free searches for today. Come back tomorrow or upgrade.",
+  daily: "You've used all 5 free searches for today. Upgrade for unlimited.",
+  ad: 'Remove ads and unlock unlimited searches with SuperChef Pro.',
+};
+function openModal(ctx){ ge('modalSub').textContent=MODAL_MSGS[ctx]||MODAL_MSGS.header; ge('modalBg').classList.add('show'); }
+function closeModal(){ ge('modalBg').classList.remove('show'); }
+
+// ── INGREDIENT MANAGEMENT ───────────────
+async function loadIngs(){
+  updateCounter();
+  try{
+    const r = await S.get('sc:ings');
+    if(r?.value){ const a=JSON.parse(r.value); if(Array.isArray(a)&&a.length){ ings=a.slice(0,MAX); renderChips(); ge('findBtn').disabled=false; } }
+  }catch(e){}
 }
-function toggleCat(ci){
-const el=document.getElementById(`cat-${ci}`);
-if(openCats.has(ci)){openCats.delete(ci);el.classList.remove('open');}
-else{openCats.add(ci);el.classList.add('open');}
+async function saveIngs(){ try{ await S.set('sc:ings',JSON.stringify(ings)); }catch(e){} }
+
+function addIng(){
+  const el=ge('ingInput');
+  const val=el.value.trim();
+  if(!val) return;
+  el.value='';
+  const c=proper(val);
+  if(ings.length>=MAX||ings.some(x=>x.toLowerCase()===c.toLowerCase())) return;
+  ings.push(c);
+  renderChips();
+  ge('findBtn').disabled=false;
+  updateNote();
+  saveIngs();
+  updateBrowserPills();
 }
-function browserAdd(btn,item){
-if(ings.length>=MAX_INGREDIENTS)return;
-const c=toProperCase(item);
-if(ings.some(x=>x.toLowerCase()===c.toLowerCase())){removeIngByName(c);return;}
-ings.push(c);renderChips();document.getElementById('findBtn').disabled=false;updateLimitNote();saveIngredients();
-document.querySelectorAll('.ipill').forEach(b=>{if((b.getAttribute('onclick')||'').includes(item)){b.className='ipill added';b.disabled=false;}});
-refreshBrowserSubtitles();
+
+function removeIng(i){
+  ings.splice(i,1);
+  renderChips();
+  if(!ings.length) ge('findBtn').disabled=true;
+  updateNote();
+  saveIngs();
+  updateBrowserPills();
 }
-function removeIngByName(name){
-const idx=ings.findIndex(x=>x.toLowerCase()===name.toLowerCase());
-if(idx===-1)return;
-ings.splice(idx,1);renderChips();if(!ings.length)document.getElementById('findBtn').disabled=true;updateLimitNote();saveIngredients();refreshBrowserSubtitles();
-}
-function refreshBrowserSubtitles(){
-const addedSet=new Set(ings.map(x=>x.toLowerCase()));
-CATEGORIES.forEach((cat,ci)=>{const el=document.getElementById(`cat-${ci}`);if(!el)return;const sub=el.querySelector('.cat-sub');if(!sub)return;const addedCount=cat.items.filter(i=>addedSet.has(i.toLowerCase())).length;sub.textContent=`${addedCount>0?`${addedCount} added · `:''}${cat.items.length} ingredients`;});
-}
-document.addEventListener('DOMContentLoaded',()=>{
-const inp=document.getElementById('browserSearch');
-const clr=document.getElementById('browserSearchClear');
-inp.addEventListener('input',()=>{const v=inp.value;clr.classList.toggle('vis',v.length>0);renderBrowser(v);});
-});
-function clearBrowserSearch(){const inp=document.getElementById('browserSearch');inp.value='';document.getElementById('browserSearchClear').classList.remove('vis');renderBrowser('');inp.focus();}
-function updateSearchCounter(){
-const el=document.getElementById('searchCounter');
-const proBadge=document.getElementById('proBadge');
-const banner=document.getElementById('limitBanner');
-const bannerText=document.getElementById('limitBannerText');
-if(Freemium.isPro()){el.style.display='none';proBadge.style.display='none';banner.style.display='none';return;}
-const rem=Freemium.remaining();
-proBadge.style.display='flex';el.style.display='flex';
-if(rem===0){el.textContent='0 searches left';el.className='search-counter empty';banner.style.display='flex';bannerText.textContent="You've used all your free searches for today.";}
-else if(rem<=2){el.textContent=`${rem} search${rem===1?'':'es'} left`;el.className='search-counter warn';banner.style.display='flex';bannerText.textContent=`Only ${rem} free search${rem===1?'':'es'} left today.`;}
-else{el.textContent=`${rem}/${FREE_SEARCHES_PER_DAY} searches left`;el.className='search-counter';banner.style.display='none';}
-}
-function showUpgradeModal(context){
-const subs={daily:"You've used all 5 free searches for today.",ad:"Remove ads and get unlimited searches.",header:"Upgrade for unlimited searches and no ads.",banner:"Upgrade for unlimited searches and no ads."};
-document.getElementById('modalSubtext').textContent=subs[context]||subs.header;
-document.getElementById('upgradeModal').classList.add('open');
-}
-function closeModal(e){if(e.target===document.getElementById('upgradeModal'))document.getElementById('upgradeModal').classList.remove('open');}
-async function loadIngredients(){
-updateSearchCounter();
-try{const res=await Storage.get('superchef:ingredients');if(res&&res.value){const saved=JSON.parse(res.value);if(Array.isArray(saved)&&saved.length){ings=saved.slice(0,MAX_INGREDIENTS);renderChips();document.getElementById('findBtn').disabled=false;}}}catch(e){}
-}
-async function saveIngredients(){try{await Storage.set('superchef:ingredients',JSON.stringify(ings));}catch(e){}}
-loadIngredients();
-function updateLimitNote(){
-const note=document.getElementById('ingLimitNote');
-const count=ings.length;
-if(count===0){note.style.display='none';return;}
-if(count>=MAX_INGREDIENTS){note.className='ing-limit-note full';note.textContent=`Limit reached (${count}/${MAX_INGREDIENTS}).`;note.style.display='flex';}
-else if(count>=MAX_INGREDIENTS-3){note.className='ing-limit-note warn';note.textContent=`${MAX_INGREDIENTS-count} ingredient${MAX_INGREDIENTS-count===1?'':'s'} remaining`;note.style.display='flex';}
-else{note.style.display='none';}
-}
-function addIng(){const el=document.getElementById('ingIn');const val=el.value.trim();if(val){addIngVal(val);el.value='';}el.focus();}
-function addIngVal(v){
-if(!v||!v.trim())return;
-if(ings.length>=MAX_INGREDIENTS)return;
-const c=toProperCase(v);
-if(ings.some(x=>x.toLowerCase()===c.toLowerCase()))return;
-ings.push(c);renderChips();document.getElementById('findBtn').disabled=false;updateLimitNote();saveIngredients();
-}
-function removeIng(i){const name=ings[i];ings.splice(i,1);renderChips();if(!ings.length)document.getElementById('findBtn').disabled=true;updateLimitNote();saveIngredients();refreshBrowserSubtitles();}
+
 function renderChips(){
-const wrap=document.getElementById('chips');
-const block=document.getElementById('chipsBlock');
-const badge=document.getElementById('ingCount');
-wrap.innerHTML='';
-if(!ings.length){block.style.display='none';badge.style.display='none';return;}
-block.style.display='block';badge.style.display='flex';badge.textContent=ings.length;
-ings.forEach((item,i)=>{const d=document.createElement('div');d.className='chip';const s=document.createElement('span');s.textContent=item;const r=document.createElement('button');r.className='chip-rm';r.textContent='✕';r.onclick=()=>removeIng(i);d.appendChild(s);d.appendChild(r);wrap.appendChild(d);});
+  const w=ge('chips'), wrap=ge('chipsWrap'), cnt=ge('ingCount');
+  w.innerHTML='';
+  if(!ings.length){ wrap.style.display='none'; cnt.style.display='none'; return; }
+  wrap.style.display='block'; cnt.style.display='flex'; cnt.textContent=ings.length;
+  ings.forEach((item,i)=>{
+    const d=document.createElement('div'); d.className='chip';
+    const s=document.createElement('span'); s.textContent=item;
+    const x=document.createElement('button'); x.className='chip-x'; x.textContent='✕'; x.type='button';
+    x.addEventListener('click',()=>removeIng(i));
+    d.appendChild(s); d.appendChild(x); w.appendChild(d);
+  });
 }
-document.getElementById('ingIn').addEventListener('keydown',e=>{if(e.key==='Enter')addIng();});
-function wordsMatch(a,b){const al=a.toLowerCase().trim(),bl=b.toLowerCase().trim();if(al===bl)return true;const re=new RegExp('\\b'+al.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\b');if(re.test(bl))return true;const re2=new RegExp('\\b'+bl.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\b');return re2.test(al);}
+
+function updateNote(){
+  const n=ge('ingNote'), c=ings.length;
+  if(!c){ n.className='ing-note'; n.textContent=''; return; }
+  if(c>=MAX){ n.className='ing-note full'; n.textContent=`Limit reached (${c}/${MAX}). Remove one to add more.`; }
+  else if(c>=MAX-3){ n.className='ing-note warn'; n.textContent=`${MAX-c} slot${MAX-c===1?'':'s'} remaining`; }
+  else{ n.className='ing-note'; n.textContent=''; }
+}
+
+// ── BROWSER ─────────────────────────────
+function renderBrowser(q){
+  const list=ge('blist');
+  const query=q.trim().toLowerCase();
+  const addedSet=new Set(ings.map(x=>x.toLowerCase()));
+  const atMax=ings.length>=MAX;
+
+  if(query){
+    const hits=[];
+    CATS.forEach(cat=>cat.i.forEach(item=>{ if(item.toLowerCase().includes(query)) hits.push(item); }));
+    if(!hits.length){ list.innerHTML=`<div class="no-results">No results for "<b>${esc(query)}</b>"</div>`; return; }
+    list.innerHTML=`<div class="results-label">Results (${hits.length})</div><div style="padding:8px 14px 14px;display:flex;flex-wrap:wrap;gap:6px">${hits.map(item=>pillHTML(item,addedSet,atMax)).join('')}</div>`;
+    return;
+  }
+
+  list.innerHTML = CATS.map((cat,ci)=>{
+    const open=openCats.has(ci);
+    const added=cat.i.filter(i=>addedSet.has(i.toLowerCase())).length;
+    const pills=cat.i.map(item=>pillHTML(item,addedSet,atMax)).join('');
+    return `<div class="bcat${open?' open':''}" id="bcat${ci}">
+      <div class="bcat-hdr" onclick="toggleCat(${ci})">
+        <div class="bcat-emoji">${cat.e}</div>
+        <div class="bcat-info">
+          <div class="bcat-name">${esc(cat.n)}</div>
+          <div class="bcat-sub">${added?`${added} added · `:''}${cat.i.length} ingredients</div>
+        </div>
+        <div class="bcat-arrow">▼</div>
+      </div>
+      <div class="bcat-pills">${pills}</div>
+    </div>`;
+  }).join('');
+}
+
+function pillHTML(item,addedSet,atMax){
+  const on=addedSet.has(item.toLowerCase());
+  const cls=on?'pill pill-on':atMax?'pill pill-off':'pill';
+  return `<button class="${cls}" type="button" onclick="togglePill(this,'${esc(item)}')">${esc(item)}</button>`;
+}
+
+function togglePill(btn,item){
+  const c=proper(item);
+  const idx=ings.findIndex(x=>x.toLowerCase()===c.toLowerCase());
+  if(idx>=0){ removeIng(idx); }
+  else if(ings.length<MAX){ ings.push(c); renderChips(); ge('findBtn').disabled=false; updateNote(); saveIngs(); updateBrowserPills(); }
+}
+
+function toggleCat(ci){
+  const el=ge('bcat'+ci);
+  if(openCats.has(ci)){ openCats.delete(ci); el.classList.remove('open'); }
+  else{ openCats.add(ci); el.classList.add('open'); }
+}
+
+function updateBrowserPills(){
+  const addedSet=new Set(ings.map(x=>x.toLowerCase()));
+  const atMax=ings.length>=MAX;
+  document.querySelectorAll('.pill').forEach(btn=>{
+    const txt=(btn.textContent||'').replace(/^✓ /,'').toLowerCase();
+    const on=addedSet.has(txt);
+    btn.className=on?'pill pill-on':atMax?'pill pill-off':'pill';
+  });
+  document.querySelectorAll('.bcat-sub').forEach((sub,ci)=>{
+    if(ci>=CATS.length) return;
+    const added=CATS[ci].i.filter(i=>addedSet.has(i.toLowerCase())).length;
+    sub.textContent=`${added?`${added} added · `:''}${CATS[ci].i.length} ingredients`;
+  });
+}
+
+// ── SEARCH ──────────────────────────────
+function wordsMatch(a,b){
+  const al=a.toLowerCase().trim(),bl=b.toLowerCase().trim();
+  if(al===bl) return true;
+  const re=new RegExp('\\b'+al.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\b');
+  return re.test(bl)||new RegExp('\\b'+bl.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\b').test(al);
+}
 function reconcile(r){
-const matches=x=>ings.some(ing=>wordsMatch(ing,x));
-const used=(r.usedIngredients||[]).filter(matches);
-const missing=(r.missingIngredients||[]).filter(x=>!matches(x));
-const total=used.length+missing.length;
-const recalcScore=total>0?Math.round((used.length/total)*100):(r.matchScore||0);
-return{...r,usedIngredients:used,missingIngredients:missing,matchScore:Math.min(100,Math.max(0,recalcScore))};
+  const ok=x=>ings.some(i=>wordsMatch(i,x));
+  const used=(r.usedIngredients||[]).filter(ok);
+  const missing=(r.missingIngredients||[]).filter(x=>!ok(x));
+  const t=used.length+missing.length;
+  return {...r,usedIngredients:used,missingIngredients:missing,matchScore:t>0?Math.round(used.length/t*100):(r.matchScore||0)};
 }
+
 async function findRecipes(){
-if(!ings.length||isFetching)return;
-if(!Freemium.isPro()&&Freemium.remaining()===0){showUpgradeModal('daily');return;}
-isFetching=true;activeFilter='all';
-const findBtn=document.getElementById('findBtn');
-findBtn.disabled=true;
-const main=document.getElementById('main');
-main.innerHTML=`<div class="loading"><div class="load-ring"><div class="load-emoji">🍳</div></div><div class="load-text"><strong>Finding recipes…</strong><span>Checking what you can make with: ${esc(ings.join(', '))}</span></div></div>`;
-const recipePrompt=`You are a world-class cooking AI. The user has these ingredients: ${ings.join(', ')}.
-Pantry staples always available: salt, pepper, oil, water, sugar, flour, vinegar.
-Return a JSON array of exactl
-Each item must have EXACTLY these fields:
-{"name":"Recipe Name","matchScore":94,"cookTime":"20 min","difficulty":"Easy","servings":2,"cuisine":"Italian","cal":"320 kcal","usedIngredients":["egg","tomato"],"missingIngredients":["basil"],"youtubeQuery":"easy tomato egg stir fry recipe"}
-difficulty must be exactly one of: Easy, Medium, or Hard
-Return ONLY the raw JSON array. No markdown fences. No explanation.\`;
-let recipes;
-try{
-const r1=await fetch(PROXY_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1400,messages:[{role:'user',content:recipePrompt}]})});
-if(r1.status===429||r1.status===529)throw new Error('Rate limit reached. Please wait and try again.');
-if(!r1.ok)throw new Error(`API error ${r1.status}. Please try again.`);
-const d1=await r1.json();
-if(d1.error)throw new Error(d1.error.message);
-const raw1=d1.content.map(b=>b.text||'').join('');
-const parsed1=JSON.parse(raw1.replace(/```json|```/g,'').trim());
-if(!Array.isArray(parsed1)||parsed1.length===0)throw new Error('Unexpected response from AI. Please try again.');
-recipes=parsed1.map(reconcile);
-Freemium.increment();updateSearchCounter();
-}catch(err){
-main.innerHTML=`<div class="results-inner"><div class="err"><div class="err-icon">⚠️</div><div class="err-msg"><strong>Something went wrong</strong><p>${esc(err.message||'Please try again.')}</p><button class="btn-retry" onclick="findRecipes()">Try Again</button></div></div></div>`;
-isFetching=false;findBtn.disabled=false;return;
-}
-renderRecipes(recipes,{pending:true});
-const videoPrompt=`For each recipe below, find a real YouTube video tutorial using web search.
-Recipes:
+  if(!ings.length||fetching) return;
+  if(!FM.isPro()&&FM.remaining()===0){ openModal('daily'); return; }
+  fetching=true; activeFilter='all';
+  const fb=ge('findBtn'); fb.disabled=true;
+  const main=ge('main');
+  main.innerHTML=`<div class="loading"><div class="load-ring"><div class="load-emoji">🍳</div></div><div class="load-txt"><strong>Finding your recipes…</strong><span>Using: ${esc(ings.join(', '))}</span></div></div>`;
+
+  const prompt=`You are a world-class cooking AI. User has: ${ings.join(', ')}.
+Staples always available: salt, pepper, oil, water, sugar, flour, vinegar.
+Return JSON array of exactly 9 recipes, sorted by matchScore descending.
+Each must have: {"name":"","matchScore":0,"cookTime":"","difficulty":"Easy","servings":2,"cuisine":"","cal":"","usedIngredients":[],"missingIngredients":[],"youtubeQuery":""}
+difficulty: Easy | Medium | Hard only. Return ONLY raw JSON array.`;
+
+  let recipes;
+  try{
+    const res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1400,messages:[{role:'user',content:prompt}]})});
+    if(res.status===429||res.status===529) throw new Error('Rate limit reached. Wait a moment and try again.');
+    if(!res.ok) throw new Error(`Server error ${res.status}. Please try again.`);
+    const d=await res.json();
+    if(d.error) throw new Error(d.error.message);
+    const raw=d.content.map(b=>b.text||'').join('');
+    const parsed=JSON.parse(raw.replace(/```json|```/g,'').trim());
+    if(!Array.isArray(parsed)||!parsed.length) throw new Error('No recipes returned. Try again.');
+    recipes=parsed.map(reconcile);
+    FM.increment(); updateCounter();
+  }catch(err){
+    main.innerHTML=`<div class="err-box"><div class="err-ico">⚠️</div><div class="err-txt"><strong>Something went wrong</strong><p>${esc(err.message)}</p><button class="retry-btn" onclick="findRecipes()">Try Again</button></div></div>`;
+    fetching=false; fb.disabled=false; return;
+  }
+
+  renderRecipes(recipes,{pending:true});
+
+  const vPrompt=`Find real YouTube cooking tutorials for these recipes:
 ${recipes.map((r,i)=>`${i+1}. ${r.name} — search: "${r.youtubeQuery}"`).join('\n')}
-Return a JSON array with one object per recipe:
-[{"index":0,"videoId":"REAL_ID_HERE","videoTitle":"Video title","channelName":"Channel","thumbnail":"https://img.youtube.com/vi/VIDEO_ID/hqdefault.jpg"}]
-Rules:
-- videoId must be a real 11-character YouTube video ID
-- If no real video found, return null for videoId
-- Return ONLY raw JSON array. No markdown.`;
-try{
-const r2=await fetch(PROXY_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:2000,tools:[{"type":"web_search_20250305","name":"web_search"}],messages:[{role:'user',content:videoPrompt}]})});
-if(!r2.ok)throw new Error(`Video search failed (${r2.status})`);
-const d2=await r2.json();
-if(d2.error)throw new Error(d2.error.message);
-const raw2=d2.content.map(b=>b.type==='text'?b.text:'').join('');
-const parsedVideos=JSON.parse(raw2.replace(/```json|```/g,'').trim());
-const videos=Array.isArray(parsedVideos)?parsedVideos:[];
-const BLOCKED_IDS=new Set(['dQw4w9WgXcQ']);
-const merged=recipes.map((r,i)=>{const v=videos.find(x=>x.index===i)||videos[i]||{};const validId=v.videoId&&/^[A-Za-z0-9_-]{11}$/.test(v.videoId)&&!BLOCKED_IDS.has(v.videoId)?v.videoId:null;return{...r,cardIndex:i,videoId:validId,videoTitle:validId?(v.videoTitle||null):null,channelName:validId?(v.channelName||null):null,thumbnail:validId?`https://img.youtube.com/vi/${validId}/hqdefault.jpg`:null,videoUrl:validId?`https://www.youtube.com/watch?v=${validId}`:`https://www.youtube.com/results?search_query=${encodeURIComponent(r.youtubeQuery||r.name)}`};});
-renderRecipes(merged,{filter:activeFilter});
-}catch(err){renderRecipes(recipes,{filter:activeFilter});}
-finally{isFetching=false;findBtn.disabled=false;}
+Return JSON array: [{"index":0,"videoId":"11charID","videoTitle":"","channelName":""}]
+Use real 11-char YouTube IDs only. Return null videoId if not found. Raw JSON only.`;
+
+  try{
+    const r2=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:2000,tools:[{type:'web_search_20250305',name:'web_search'}],messages:[{role:'user',content:vPrompt}]})});
+    if(!r2.ok) throw new Error();
+    const d2=await r2.json();
+    const raw2=d2.content.map(b=>b.type==='text'?b.text:'').join('');
+    const vids=JSON.parse(raw2.replace(/```json|```/g,'').trim());
+    const BAD=new Set(['dQw4w9WgXcQ']);
+    const merged=recipes.map((r,i)=>{
+      const v=(Array.isArray(vids)?vids:[])[i]||{};
+      const id=v.videoId&&/^[A-Za-z0-9_-]{11}$/.test(v.videoId)&&!BAD.has(v.videoId)?v.videoId:null;
+      return{...r,videoId:id,videoTitle:id?v.videoTitle:null,channelName:id?v.channelName:null,
+        thumbnail:id?`https://img.youtube.com/vi/${id}/hqdefault.jpg`:null,
+        videoUrl:id?`https://www.youtube.com/watch?v=${id}`:`https://www.youtube.com/results?search_query=${encodeURIComponent(r.youtubeQuery||r.name)}`};
+    });
+    renderRecipes(merged,{filter:activeFilter});
+  }catch(e){ renderRecipes(recipes,{filter:activeFilter}); }
+  finally{ fetching=false; fb.disabled=false; }
 }
-function diffBadge(d){const l=(d||'').toLowerCase();if(l==='easy')return`<span class="badge b-easy">Easy</span>`;if(l==='hard')return`<span class="badge b-hard">Hard</span>`;return`<span class="badge b-medium">Medium</span>`;}
-function renderRecipes(recipes,opts={}){
-const main=document.getElementById('main');
-const total=recipes.length;
-const full=recipes.filter(r=>r.matchScore>=90).length;
-const easy=recipes.filter(r=>(r.difficulty||'').toLowerCase()==='easy').length;
-const statsHtml=`<div class="stats-bar"><div class="stat-pill"><div class="stat-icon">🍽</div><div><div class="stat-val">${total}</div><div class="stat-lbl">Recipes</div></div></div><div class="stat-pill"><div class="stat-icon">✅</div><div><div class="stat-val">${full}</div><div class="stat-lbl">Full Match</div></div></div><div class="stat-pill"><div class="stat-icon">⚡</div><div><div class="stat-val">${easy}</div><div class="stat-lbl">Quick &amp; Easy</div></div></div></div>`;
-const cards=recipes.map((r,mapIdx)=>{
-const emoji=getEmoji(r.name);const bg=getBg(r.name);
-const pct=Math.min(100,Math.max(0,r.matchScore||0));
-const have=(r.usedIngredients||[]).map(x=>`<span class="ip ip-have">✓ ${esc(x)}</span>`).join('');
-const need=(r.missingIngredients||[]).map(x=>`<span class="ip ip-need">+ ${esc(x)}</span>`).join('');
-const ytUrl=r.videoUrl||`https://www.youtube.com/results?search_query=${encodeURIComponent(r.youtubeQuery||r.name)}`;
-const hasRealVideo=!!r.videoId;const fbId=`fb-card-${mapIdx}`;
-const servingsDisplay=r.servings!=null&&r.servings!==''?String(r.servings):'—';
-const thumbInner=hasRealVideo?`<img src="${esc(r.thumbnail)}" alt="${esc(r.name)}" style="width:100%;height:100%;object-fit:cover;display:block;position:absolute;inset:0" data-fallback-id="${fbId}" onerror="this.style.display='none';var fb=document.getElementById(this.dataset.fallbackId);if(fb)fb.style.display='flex'"/><div id="${fbId}" style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:3rem;position:absolute;inset:0">${emoji}</div>`:`<span style="position:relative;z-index:1">${emoji}</span>`;
-const channelLine=r.channelName?`<div class="cmeta-i" style="color:var(--lime);font-size:0.68rem">📺 ${esc(r.channelName)}</div>`:'';
-const directBadge=hasRealVideo?`<span style="position:absolute;top:10px;right:10px;background:#ff0000;color:#fff;font-size:0.58rem;font-weight:700;padding:2px 6px;border-radius:4px">Video</span>`:`<span style="position:absolute;top:10px;right:10px;background:#333;color:#888;font-size:0.58rem;font-weight:700;padding:2px 6px;border-radius:4px">Search</span>`;
-return`<div class="rcard" data-diff="${(r.difficulty||'medium').toLowerCase()}" data-pct="${pct}" tabindex="0" onclick="window.open('${esc(ytUrl)}','_blank')">
-<div class="thumb" style="background:${bg};position:relative;">${thumbInner}<div class="thumb-overlay"><div class="play-btn">▶</div></div><div class="thumb-badges"><span class="badge b-match">${pct}%</span>${diffBadge(r.difficulty)}</div>${directBadge}</div>
+
+// ── RENDER ──────────────────────────────
+function diffBadge(d){
+  const l=(d||'').toLowerCase();
+  return l==='easy'?`<span class="bdg bdg-easy">Easy</span>`:l==='hard'?`<span class="bdg bdg-hard">Hard</span>`:`<span class="bdg bdg-med">Medium</span>`;
+}
+
+function renderRecipes(list,opts={}){
+  const main=ge('main');
+  const total=list.length, full=list.filter(r=>r.matchScore>=90).length, easy=list.filter(r=>(r.difficulty||'').toLowerCase()==='easy').length;
+  const cards=list.map((r,idx)=>{
+    const e=emoji(r.name), b=bg(r.name), pct=Math.min(100,Math.max(0,r.matchScore||0));
+    const have=(r.usedIngredients||[]).map(x=>`<span class="ing-tag ing-have">✓ ${esc(x)}</span>`).join('');
+    const need=(r.missingIngredients||[]).map(x=>`<span class="ing-tag ing-need">+ ${esc(x)}</span>`).join('');
+    const url=r.videoUrl||`https://www.youtube.com/results?search_query=${encodeURIComponent(r.youtubeQuery||r.name)}`;
+    const hasVid=!!r.videoId, fb=`fb${idx}`;
+    const thumb=hasVid?`<img src="${esc(r.thumbnail)}" alt="${esc(r.name)}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;display:block" data-fb="${fb}" onerror="this.style.display='none';var x=document.getElementById(this.dataset.fb);if(x)x.style.display='flex'"/><div id="${fb}" style="display:none;position:absolute;inset:0;align-items:center;justify-content:center;font-size:2.8rem">${e}</div>`:`<span>${e}</span>`;
+    return`<div class="card" data-d="${(r.difficulty||'medium').toLowerCase()}" data-p="${pct}" onclick="window.open('${esc(url)}','_blank')">
+<div class="thumb" style="background:${b};position:relative">${thumb}<div class="thumb-ov"><div class="play">▶</div></div><div class="thumb-badges"><span class="bdg bdg-pct">${pct}%</span>${diffBadge(r.difficulty)}</div><span class="vid-tag" style="background:${hasVid?'#ff0000':'#333'};color:${hasVid?'#fff':'#888'}">${hasVid?'Video':'Search'}</span></div>
 <div class="cbody">
 <div class="cname">${esc(r.name)}</div>
-${r.videoTitle?`<div style="font-size:0.7rem;color:var(--muted);line-height:1.3;margin-top:-4px">${esc(r.videoTitle)}</div>`:''}
-<div class="cmeta"><div class="cmeta-i">⏱ ${esc(r.cookTime||'—')}</div><div class="cmeta-i">👤 ${esc(servingsDisplay)}</div>${r.cuisine?`<div class="cmeta-i">🌍 ${esc(r.cuisine)}</div>`:''} ${r.cal?`<div class="cmeta-i">🔥 ${esc(r.cal)}</div>`:''}</div>
-${channelLine}
-<div class="mbar-row"><div class="mbar-bg"><div class="mbar-fg" style="width:${pct}%"></div></div><div class="mbar-pct">${pct}%</div></div>
-<div class="ing-pills">${have}${need}</div>
-<a class="btn-watch" href="${esc(ytUrl)}" target="_blank" rel="noopener" onclick="event.stopPropagation()"><div class="yt-logo">▶</div> ${hasRealVideo?'Watch Video':'Search YouTube'}</a>
+${r.videoTitle?`<div style="font-size:0.67rem;color:var(--muted);margin-top:-4px;line-height:1.4">${esc(r.videoTitle)}</div>`:''}
+<div class="cmeta"><span class="cmeta-i">⏱ ${esc(r.cookTime||'—')}</span><span class="cmeta-i">👤 ${r.servings||'—'}</span>${r.cuisine?`<span class="cmeta-i">🌍 ${esc(r.cuisine)}</span>`:''}</div>
+${r.channelName?`<div style="font-size:0.65rem;color:var(--lime)">📺 ${esc(r.channelName)}</div>`:''}
+<div class="mbar"><div class="mbar-bg"><div class="mbar-fg" style="width:${pct}%"></div></div><div class="mbar-pct">${pct}%</div></div>
+<div class="ings-row">${have}${need}</div>
+<a class="watch-btn" href="${esc(url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()"><div class="yt-ico">▶</div>${hasVid?'Watch Video':'Search YouTube'}</a>
+</div></div>`;
+  }).join('');
+  const pend=opts.pending?`<div class="vid-pend"><span class="vid-dot"></span>Finding YouTube tutorials…</div>`:'';
+  main.innerHTML=`<div class="results">
+<div class="res-hdr">
+<div><div class="res-title">Found <span>${total} Dishes</span></div><div class="res-sub">Using: ${esc(ings.join(', '))}</div>${pend}</div>
+<div class="filters"><button class="flt on" data-f="all" onclick="filterBy(this,'all')">All</button><button class="flt" data-f="easy" onclick="filterBy(this,'easy')">Easy</button><button class="flt" data-f="full" onclick="filterBy(this,'full')">Full Match</button></div>
 </div>
+<div class="stats"><div class="stat"><div class="stat-ico">🍽</div><div><div class="stat-val">${total}</div><div class="stat-lbl">Recipes</div></div></div><div class="stat"><div class="stat-ico">✅</div><div><div class="stat-val">${full}</div><div class="stat-lbl">Full Match</div></div></div><div class="stat"><div class="stat-ico">⚡</div><div><div class="stat-val">${easy}</div><div class="stat-lbl">Quick</div></div></div></div>
+<div class="grid" id="grid">${cards}</div>
 </div>`;
-}).join('');
-const pendingHtml=opts.pending?`<div class="video-pending"><span class="dot"></span>Searching YouTube for tutorials…</div>`:'';
-main.innerHTML=`<div class="results-inner"><div class="res-header"><div><div class="res-title">Found <span class="hl">${total} Dishes</span><br>You Can Cook</div><div class="res-sub">Using: <b>${esc(ings.join(', '))}</b></div>${pendingHtml}</div><div class="filter-row"><button class="f-btn" data-f="all" onclick="filterBy(this,'all')">All</button><button class="f-btn" data-f="easy" onclick="filterBy(this,'easy')">Easy</button><button class="f-btn" data-f="full" onclick="filterBy(this,'full')">Full Match</button></div></div>${statsHtml}<div class="recipe-grid" id="grid">${cards}</div></div>`;
-const ft=opts.filter||'all';
-const fb=main.querySelector(`.f-btn[data-f="${ft}"]`)||main.querySelector('.f-btn[data-f="all"]');
-if(fb)filterBy(fb,ft);
-if(!Freemium.isPro()&&!opts.pending){
-const adEl=document.createElement('div');adEl.className='ad-banner';
-adEl.innerHTML=`<div class="ad-label">Advertisement</div><div class="ad-mock"><span>🚀 Ad-free with <strong>SuperChef Pro</strong></span><button class="btn-go-pro-small" onclick="showUpgradeModal('ad')">Go Pro ${PRO_PRICE}</button></div>`;
-main.querySelector('.results-inner').appendChild(adEl);
+  filterBy(main.querySelector(`.flt[data-f="${opts.filter||'all'}"]`)||main.querySelector('.flt'),opts.filter||'all');
+  if(!FM.isPro()&&!opts.pending){
+    const ad=document.createElement('div'); ad.className='ad-wrap';
+    ad.innerHTML=`<div class="ad-lbl">Advertisement</div><div class="ad-inner"><span class="ad-txt">🚀 Go ad-free with <strong>SuperChef Pro</strong></span><button class="ad-pro-btn" onclick="openModal('ad')">Go Pro $9.99/mo</button></div>`;
+    main.querySelector('.results').appendChild(ad);
+  }
 }
-}
+
 function filterBy(btn,type){
-activeFilter=type;
-document.querySelectorAll('.f-btn').forEach(b=>{b.classList.remove('on');b.setAttribute('aria-pressed','false');});
-btn.classList.add('on');btn.setAttribute('aria-pressed','true');
-const grid=document.getElementById('grid');
-let visible=0;
-document.querySelectorAll('.rcard').forEach(c=>{const diff=c.dataset.diff,pct=parseInt(c.dataset.pct||'0',10);let show=type==='all'||(type==='easy'&&diff==='easy')||(type==='full'&&pct>=90);c.style.display=show?'':'none';if(show)visible++;});
-const ex=grid.querySelector('.filter-empty');if(ex)ex.remove();
-if(visible===0){const d=document.createElement('div');d.className='filter-empty';d.innerHTML=`<div style="font-size:2.5rem;opacity:0.4">🔍</div><div style="font-size:0.84rem;color:var(--muted)">No ${type} recipes found. Try a different filter.</div>`;grid.appendChild(d);}
+  if(!btn) return;
+  activeFilter=type;
+  document.querySelectorAll('.flt').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  let visible=0;
+  document.querySelectorAll('.card').forEach(c=>{
+    const show=type==='all'||(type==='easy'&&c.dataset.d==='easy')||(type==='full'&&parseInt(c.dataset.p||0)>=90);
+    c.style.display=show?'':'none';
+    if(show) visible++;
+  });
+  const grid=ge('grid'); if(!grid) return;
+  const ex=grid.querySelector('.no-flt'); if(ex) ex.remove();
+  if(!visible){ const d=document.createElement('div'); d.className='no-flt'; d.innerHTML=`<div style="font-size:2rem;margin-bottom:8px">🔍</div>No ${type} recipes found. Try a different filter.`; grid.appendChild(d); }
 }
+
+// ── EVENTS ──────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  loadIngs();
+
+  // Add button
+  ge('addBtn').addEventListener('click', addIng);
+  ge('addBtn').addEventListener('touchend', (e) => { e.preventDefault(); addIng(); });
+
+  // Enter key
+  ge('ingInput').addEventListener('keydown', e => { if(e.key==='Enter'){ e.preventDefault(); addIng(); } });
+
+  // Find button
+  ge('findBtn').addEventListener('click', findRecipes);
+  ge('findBtn').addEventListener('touchend', (e) => { e.preventDefault(); findRecipes(); });
+
+  // Tabs
+  ge('tab0').addEventListener('touchend', (e) => { e.preventDefault(); switchTab(0); });
+  ge('tab1').addEventListener('touchend', (e) => { e.preventDefault(); switchTab(1); });
+
+  // Browser search
+  ge('bsearchInput').addEventListener('input', (e) => {
+    const v=e.target.value;
+    ge('bsearchClear').classList.toggle('show', v.length>0);
+    renderBrowser(v);
+  });
+  ge('bsearchClear').addEventListener('click', () => {
+    ge('bsearchInput').value='';
+    ge('bsearchClear').classList.remove('show');
+    renderBrowser('');
+    ge('bsearchInput').focus();
+  });
+});
 </script>
 </body>
 </html>
